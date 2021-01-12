@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Chapter 9 - Writing Automated Tests | KSLEO</title>
+    <meta name="generator" content="VuePress 1.5.2">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="description" content="Just playing around">
+    <link rel="preload" href="/assets/css/0.styles.35aebc44.css" as="style"><link rel="preload" href="/assets/js/app.6f46cf57.js" as="script"><link rel="preload" href="/assets/js/2.49ce1412.js" as="script"><link rel="preload" href="/assets/js/14.e42e08a4.js" as="script"><link rel="prefetch" href="/assets/js/10.86ad4e85.js"><link rel="prefetch" href="/assets/js/11.e7ef91a0.js"><link rel="prefetch" href="/assets/js/12.14d347b9.js"><link rel="prefetch" href="/assets/js/13.beaf8085.js"><link rel="prefetch" href="/assets/js/15.41e8c95f.js"><link rel="prefetch" href="/assets/js/16.e8b84c5d.js"><link rel="prefetch" href="/assets/js/17.4d574f20.js"><link rel="prefetch" href="/assets/js/18.a8a8e164.js"><link rel="prefetch" href="/assets/js/19.118b3a66.js"><link rel="prefetch" href="/assets/js/20.ccdc0717.js"><link rel="prefetch" href="/assets/js/21.88ceead5.js"><link rel="prefetch" href="/assets/js/22.500d3be7.js"><link rel="prefetch" href="/assets/js/23.b7ca339b.js"><link rel="prefetch" href="/assets/js/24.0360313a.js"><link rel="prefetch" href="/assets/js/25.6083b636.js"><link rel="prefetch" href="/assets/js/26.1bd9d3eb.js"><link rel="prefetch" href="/assets/js/27.beb716dd.js"><link rel="prefetch" href="/assets/js/28.bb093ca6.js"><link rel="prefetch" href="/assets/js/29.5b527549.js"><link rel="prefetch" href="/assets/js/3.8a6c11df.js"><link rel="prefetch" href="/assets/js/30.796276de.js"><link rel="prefetch" href="/assets/js/31.666b101e.js"><link rel="prefetch" href="/assets/js/32.654129d9.js"><link rel="prefetch" href="/assets/js/33.e479db51.js"><link rel="prefetch" href="/assets/js/4.e2a8d64a.js"><link rel="prefetch" href="/assets/js/5.dd4c966a.js"><link rel="prefetch" href="/assets/js/6.00a6c78e.js"><link rel="prefetch" href="/assets/js/7.9330d48e.js"><link rel="prefetch" href="/assets/js/8.560dd961.js"><link rel="prefetch" href="/assets/js/9.da6c1180.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.35aebc44.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container no-sidebar"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">KSLEO</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/directory/" class="nav-link">
+  笔记📒
+</a></div><div class="nav-item"><a href="http://leokang28.github.io" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  博客🔗
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/directory/" class="nav-link">
+  笔记📒
+</a></div><div class="nav-item"><a href="http://leokang28.github.io" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  博客🔗
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav>  <!----> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="chapter-9-writing-automated-tests"><a href="#chapter-9-writing-automated-tests" class="header-anchor">#</a> Chapter 9 - Writing Automated Tests</h1> <p>程序的正确性是它按我们的预期运行的程度。Rust被设计为高度关注程序正确性的语言，但正确性很复杂而且不容易实现。Rust的类型系统承担了大部分的工作，但是类型系统不能够捕获所有可能的错误。因此，Rust支持编写自动测试用例。</p> <h2 id="section-1-如何编写测试用例"><a href="#section-1-如何编写测试用例" class="header-anchor">#</a> Section - 1 如何编写测试用例</h2> <p>测试用例是用来验证代码是否按预期设计运行的函数。测试用例通常包含三部分：</p> <ol><li>初始化需要的数据和状态。</li> <li>运行需要测试的代码。</li> <li>断言结果是否正确。</li></ol> <p>接下来看一下Rust为编写测试用例特别提供的功能。包括<code>test</code>属性，一些宏和<code>should_panic</code>属性。</p> <h3 id="the-anatomy-of-a-test-function"><a href="#the-anatomy-of-a-test-function" class="header-anchor">#</a> The Anatomy of a Test Function</h3> <p>最简单的情况，Rust中一个测试用例就是一个带<code>test</code>属性的函数。属性是关于代码片段的元数据。在函数定义前加一行<code>#[test]</code>，这个函数就是测试用例函数。然后当你执行<code>cargo test</code>，Rust创建一个用来执行测试用例的可执行文件，这个文件会调用被<code>test</code>属性标记的函数，并且报告这些测试的结果是成功还是失败。</p> <p>当我们使用<code>Cargo</code>创建库项目时，会自动生成一个测试模块，你可以自己添加其他的测试模块和函数。</p> <p>首先创建一个库项目。<code>cargo new adder --lib</code>。然后可以看到默认创建好的测试模块和用例。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token attribute attr-name">#[cfg(test)]</span>
+<span class="token keyword">mod</span> tests <span class="token punctuation">{</span>
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">it_works</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">+</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br></div></div><p>先把注意力集中到测试用例上。函数上面一行的<code>#[test]</code>表明这个函数是一个测试用例，test runner会在测试的时候执行这个函数。测试模块中也可以包含普通的函数，用于初始化或者提供普通的操作。因此需要在测试用例前用属性指明。</p> <p>函数体中使用到了<code>assert_eq!</code>宏。这个断言是一个典型的测试用例。运行<code>cargo test</code>会得到以下输出信息。</p> <div class="language- extra-class"><pre><code>$ cargo test
+Compiling adder v0.1.0 (/Users/ksleo/private/rust_learn/adder)
+ Finished test [unoptimized + debuginfo] target(s) in 0.57s
+  Running target/debug/deps/adder-92948b65e88960b4
+
+running 1 test
+test tests::it_works ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+Doc-tests adder
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre></div><p>可以看到在<code>running 1 test</code>这一行下面，显示运行了一个测试用例<code>it_works</code>，并且运行结果是<code>ok</code>。测试用例的运行结果汇总统计在下面一行。<code>test result: ok</code>表示所有的测试用例都通过了测试，并且后面<code>1 passed; 0 failed;</code>统计了成功和失败的数量。</p> <p>测试输出的下一个部分是<code>Doc-tests</code>，这个是文档测试的结果。我们这里没有文档测试，Rust能在API文档里生成示例代码。这个功能让代码和文档保持同步。</p> <p>再添加一个失败结果的测试用例。每一个测试用例都跑在单独的线程中，主线程如果发现有一个测试线程失败，就把测试结果标记为失败。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token attribute attr-name">#[cfg(test)]</span>
+<span class="token keyword">mod</span> tests <span class="token punctuation">{</span>
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">exploration</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">+</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">another</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">panic!</span><span class="token punctuation">(</span><span class="token string">&quot;Make this test fail&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br></div></div><p>再运行测试用例，会得到如下输出。</p> <div class="language- extra-class"><pre><code>running 2 tests
+test tests::it_works ... ok
+test tests::another ... FAILED
+
+failures:
+
+---- tests::another stdout ----
+thread 'tests::another' panicked at 'Make this test fail', src/lib.rs:10:9
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::another
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out
+
+error: test failed, to rerun pass '--lib'
+</code></pre></div><p>可以看到有两块<code>failures</code>内容是之前没有的。第一部分是失败用例的文件路径和产生错误的代码位置。第二块是失败的用例名列表，当失败的用例非常多时，这个列表就很有用了。我们可以通过单独运行某个用例获取更多的错误信息。</p> <p>下面的摘要行显示，测试结果是<code>FAILED</code>。</p> <h3 id="用assert-宏断言结果"><a href="#用assert-宏断言结果" class="header-anchor">#</a> 用<code>assert!</code>宏断言结果</h3> <p><code>assert!</code>宏是由标准库提供的，用于在测试中确定运行结果是否为真。<code>assert!</code>一个返回布尔值的表达式。如果返回值是<code>true</code>，它不会做任何特殊处理，并且该测试用例结果为<code>ok</code>。如果为<code>false</code>，它会调用<code>panic!</code>宏来让测试用例失败。使用<code>assert!</code>断言来检测函数是否按照我们的预期设计执行。</p> <p>下面写一些测试用例，用来测试之前章节中定义的<code>Rectangle</code>结构体。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token attribute attr-name">#[derive(Debug)]</span>
+<span class="token keyword">struct</span> Rectangle <span class="token punctuation">{</span>
+    width<span class="token punctuation">:</span> u32<span class="token punctuation">,</span>
+    height<span class="token punctuation">:</span> u32<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">impl</span> Rectangle <span class="token punctuation">{</span>
+    <span class="token keyword">fn</span> <span class="token function">can_hold</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">self</span><span class="token punctuation">,</span> other<span class="token punctuation">:</span> <span class="token operator">&amp;</span>Rectangle<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> bool <span class="token punctuation">{</span>
+        <span class="token keyword">self</span><span class="token punctuation">.</span>width <span class="token operator">&gt;</span> other<span class="token punctuation">.</span>width <span class="token operator">&amp;&amp;</span> <span class="token keyword">self</span><span class="token punctuation">.</span>height <span class="token operator">&gt;</span> other<span class="token punctuation">.</span>height
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token attribute attr-name">#[cfg(test)]</span>
+<span class="token keyword">mod</span> tests <span class="token punctuation">{</span>
+    <span class="token keyword">use</span> <span class="token keyword">super</span><span class="token punctuation">::</span><span class="token operator">*</span><span class="token punctuation">;</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">larger_can_hold_smaller</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> larger <span class="token operator">=</span> Rectangle <span class="token punctuation">{</span>
+            width<span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span>
+            height<span class="token punctuation">:</span> <span class="token number">7</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+        <span class="token keyword">let</span> smaller <span class="token operator">=</span> Rectangle <span class="token punctuation">{</span>
+            width<span class="token punctuation">:</span> <span class="token number">5</span><span class="token punctuation">,</span>
+            height<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        <span class="token function">assert!</span><span class="token punctuation">(</span>larger<span class="token punctuation">.</span><span class="token function">can_hold</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>smaller<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">smaller_cannot_hold_larger</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> larger <span class="token operator">=</span> Rectangle <span class="token punctuation">{</span>
+            width<span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span>
+            height<span class="token punctuation">:</span> <span class="token number">7</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+        <span class="token keyword">let</span> smaller <span class="token operator">=</span> Rectangle <span class="token punctuation">{</span>
+            width<span class="token punctuation">:</span> <span class="token number">5</span><span class="token punctuation">,</span>
+            height<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        <span class="token function">assert!</span><span class="token punctuation">(</span><span class="token operator">!</span>smaller<span class="token punctuation">.</span><span class="token function">can_hold</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>larger<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br></div></div><p>注意在测试模块中引入了待测试模块的命名空间。测试模块跟普通模块一样，也要遵循命名空间规则。</p> <h3 id="使用assert-eq-和assert-ne-断言相等性"><a href="#使用assert-eq-和assert-ne-断言相等性" class="header-anchor">#</a> 使用<code>assert_eq!</code>和<code>assert_ne!</code>断言相等性</h3> <p>判断相等性可以在<code>assert!</code>宏中传入一个<code>==</code>表达式。但是由于这种判断是一个常用场景，因此标准库提供了专门用来判断相等性的宏。这两个宏接收两个参数来判断它们是否相等。断言失败时它们会打印出参数值，可以更清楚的知道测试用例为什么失败。而<code>assert!</code>宏的话，只能表示它的参数<code>==</code>表达式返回了一个<code>false</code>，而不能确定导致它失败的具体参数是什么。</p> <p>比如写一个函数，将它的参数+2。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">pub</span> <span class="token keyword">fn</span> <span class="token function">add_two</span><span class="token punctuation">(</span>a<span class="token punctuation">:</span>i32<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> i32 <span class="token punctuation">{</span>
+    a <span class="token operator">+</span> <span class="token number">2</span>
+<span class="token punctuation">}</span>
+
+<span class="token attribute attr-name">#[cfg(test)]</span>
+<span class="token keyword">mod</span> tests <span class="token punctuation">{</span>
+    <span class="token keyword">use</span> <span class="token keyword">super</span><span class="token punctuation">::</span><span class="token operator">*</span><span class="token punctuation">;</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">it_adds_two</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token function">add_two</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">it_adds_three</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token function">add_two</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br></div></div><p>测试用例运行结果为如下</p> <div class="language- extra-class"><pre><code>running 2 tests
+test tests::it_adds_two ... ok
+test tests::it_adds_three ... FAILED
+
+failures:
+
+---- tests::it_adds_three stdout ----
+thread 'tests::it_adds_three' panicked at 'assertion failed: `(left == right)`
+left: `5`,
+right: `4`', src/lib.rs:16:9
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::it_adds_three
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out
+
+error: test failed, to rerun pass '--lib'
+</code></pre></div><p>第一个用例通过。第二个用例，由于我们断言传的参数<code>add_two</code>的结果为5，因此测试结果为失败。并且指出它的错误原因是左右值不想等，且<code>left</code>是5，<code>right</code>是4。一些测试框架和语言中，可能把相等性判断的两个参数称为<code>expected</code>和<code>actual</code>。Rust中称为<code>left</code>和<code>right</code>。参数传递的顺序对测试结果没有影响。</p> <p><code>assert_ne!</code>宏跟它的作用一样，逻辑相反。一般ne函数用于那些我们不确定结果是什么值，但是可以确定结果不该是某个值的情况下。</p> <p>在接口底层，<code>assert_eq!</code>和<code>assert_ne!</code>分别使用的是<code>==</code>和<code>!=</code>运算符。当测试不通过时，这些宏通过debug格式化来打印参数信息，也就是说用于比较的参数值必须实现<code>PartialEq</code>和<code>Debug</code>两个trait。所有基础类型和大部分标准库提供的类型都实现了这两个trait。你自己定义的struct和enum，需要你自己实现<code>PartialEq</code>trait来定义相等性。如果你需要测试不通过时打印参数信息，你还需要实现<code>Debug</code>模块。由于这两个模块都是可派生模块，可以直接在自定义的struct和enum前面加<code>#[derive(PartialEq, Debug)]</code>。</p> <h3 id="添加自定义错误信息"><a href="#添加自定义错误信息" class="header-anchor">#</a> 添加自定义错误信息</h3> <p>使用<code>format!</code>宏语法，将错误信息加在断言函数的最后。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">pub</span> <span class="token keyword">fn</span> <span class="token function">greeting</span><span class="token punctuation">(</span>name<span class="token punctuation">:</span> <span class="token operator">&amp;</span>str<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> String <span class="token punctuation">{</span>
+    String<span class="token punctuation">::</span><span class="token function">from</span><span class="token punctuation">(</span><span class="token string">&quot;Hello!&quot;</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+<span class="token comment">// 省略</span>
+<span class="token function">assert!</span><span class="token punctuation">(</span>
+    result<span class="token punctuation">.</span><span class="token function">contains</span><span class="token punctuation">(</span><span class="token string">&quot;Carol&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token comment">// 错误信息</span>
+    <span class="token string">&quot;Greeting did not contain name, value was `{}`&quot;</span><span class="token punctuation">,</span>
+    result
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br></div></div><h3 id="checking-for-panics-with-should-panic"><a href="#checking-for-panics-with-should-panic" class="header-anchor">#</a> Checking for Panics with should_panic</h3> <p>使用<code>should_panic</code>属性来检测，代码是不是按照预期发生了panic。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">pub</span> <span class="token keyword">struct</span> Guess <span class="token punctuation">{</span>
+    value<span class="token punctuation">:</span> i32<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">impl</span> Guess <span class="token punctuation">{</span>
+    <span class="token keyword">pub</span> <span class="token keyword">fn</span> <span class="token function">new</span><span class="token punctuation">(</span>value<span class="token punctuation">:</span> i32<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> Guess <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> value <span class="token operator">&lt;</span> <span class="token number">1</span> <span class="token operator">||</span> value <span class="token operator">&gt;</span> <span class="token number">100</span> <span class="token punctuation">{</span>
+            <span class="token function">panic!</span><span class="token punctuation">(</span><span class="token string">&quot;Guess value must be between 1 and 100, got {}.&quot;</span><span class="token punctuation">,</span> value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        Guess <span class="token punctuation">{</span> value <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token attribute attr-name">#[cfg(test)]</span>
+<span class="token keyword">mod</span> tests <span class="token punctuation">{</span>
+    <span class="token keyword">use</span> <span class="token keyword">super</span><span class="token punctuation">::</span><span class="token operator">*</span><span class="token punctuation">;</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token attribute attr-name">#[should_panic]</span>
+    <span class="token keyword">fn</span> <span class="token function">greater_than_100</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Guess<span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br></div></div><p>运行结果为ok。我们传的值是200，符合panic的条件，因此函数调用<code>panic!</code>宏。这个错误被<code>#[should_panic]</code>捕获到了，测试结果跟我们预期的一样，因此它是一个成功的测试用例。换句话说，<code>should_panic</code>只用来检测那些会panic的情况，如果没有发生panic，那么这个用例就是失败。</p> <p>仅使用<code>should_panic</code>来检测panic不是很精确，因为可能代码中panic没有携带有用信息。<code>should_panic</code>可以接收参数，在panic发生时，这个参数会跟错误信息一起打印出来。</p> <h3 id="在测试用例中使用result-t-e"><a href="#在测试用例中使用result-t-e" class="header-anchor">#</a> 在测试用例中使用<code>Result&lt;T, E&gt;</code></h3> <p>可以在测试用例中<code>Result</code>来替代断言宏。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token attribute attr-name">#[cfg(test)]</span>
+<span class="token keyword">mod</span> tests <span class="token punctuation">{</span>
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">it_works</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> Result<span class="token operator">&lt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> String<span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token number">2</span> <span class="token operator">+</span> <span class="token number">2</span> <span class="token operator">==</span> <span class="token number">4</span> <span class="token punctuation">{</span>
+            <span class="token function">Ok</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            <span class="token function">Err</span><span class="token punctuation">(</span>String<span class="token punctuation">::</span><span class="token function">from</span><span class="token punctuation">(</span><span class="token string">&quot;two plus two does not equal four&quot;</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br></div></div><p>这个测试用例返回一个<code>Result</code>。同时可以在测试用例内部使用问号操作符。当使用<code>Result</code>时，不能使用<code>should_panic</code>属性，此时必须显式地返回一个<code>Err</code>。</p> <h2 id="section-2-controlling-how-tests-are-run"><a href="#section-2-controlling-how-tests-are-run" class="header-anchor">#</a> Section 2 - Controlling How Tests Are Run</h2> <p><code>cargo run</code>编译代码并且运行结果可执行文件，同样的，<code>cargo test</code>在测试模式编译代码然后运行测试用例可执行文件。你可以通过指定命令参数，来改变<code>cargo test</code>的默认行为。<code>cargo test</code>编译生成的可执行文件的默认行为是：并行运行所有测试用例，捕获测试用例的输出信息，并加工成跟测试用例相关联的，阅读友好的输出信息。</p> <p>某些命令行参数是给<code>cargo test</code>执行的，而某些是给编译完的可执行文件执行的。为了区分这两种类型的参数，用于<code>cargo test</code>执行的参数跟在<code>--</code>后面，然后后面再跟的是给可执行文件执行的参数。</p> <h3 id="并行和串行"><a href="#并行和串行" class="header-anchor">#</a> 并行和串行</h3> <p>当执行多个测试用例，默认的行为是多线程并行执行。因此测试代码可以最快运行完毕并且输出测试反馈。由于每个测试用例是单独一个线程的，所以保证每个用例是独立的，没有共享状态或者共享环境等。比如多个测试用例是对一个文件进行读写，当并发进行时，有可能进程A在读的时候，文件被进程B覆盖了，导致进程A测试失败。然而这并不是由于逻辑代码引起的错误。解决方法是所有测试用例隔离测试环境，或者串行测试用例。</p> <p>用参数<code>cargo test -- --test-threads=1</code>指定执行的线程数。</p> <h3 id="显示被测试函数的输出信息"><a href="#显示被测试函数的输出信息" class="header-anchor">#</a> 显示被测试函数的输出信息</h3> <p>默认情况下，Rust会将测试通过用例下的函数输出信息全部捕获，只输出测试通过的信息。而测试用例失败时，所有信息信息都会被输出。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code>
+<span class="token keyword">fn</span> <span class="token function">prints_and_returns_10</span><span class="token punctuation">(</span>a<span class="token punctuation">:</span> i32<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> i32 <span class="token punctuation">{</span>
+    <span class="token function">println!</span><span class="token punctuation">(</span><span class="token string">&quot;I got the value {}&quot;</span><span class="token punctuation">,</span> a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token number">10</span>
+<span class="token punctuation">}</span>
+
+<span class="token attribute attr-name">#[cfg(test)]</span>
+<span class="token keyword">mod</span> tests <span class="token punctuation">{</span>
+    <span class="token keyword">use</span> <span class="token keyword">super</span><span class="token punctuation">::</span><span class="token operator">*</span><span class="token punctuation">;</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">this_test_will_pass</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> value <span class="token operator">=</span> <span class="token function">prints_and_returns_10</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">,</span> value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">this_test_will_fail</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> value <span class="token operator">=</span> <span class="token function">prints_and_returns_10</span><span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span> value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br></div></div><p>默认测试上面的代码。输出以下信息</p> <div class="language- extra-class"><pre><code>running 2 tests
+test tests::this_test_will_fail ... FAILED
+test tests::this_test_will_pass ... ok
+
+failures:
+
+---- tests::this_test_will_fail stdout ----
+I got the value 8
+thread 'main' panicked at 'assertion failed: `(left == right)`
+left: `5`,
+right: `10`', src/lib.rs:19:9
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
+
+
+failures:
+    tests::this_test_will_fail
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out
+
+error: test failed, to rerun pass '--lib'
+</code></pre></div><p>通过<code>cargo test -- --show-output</code>参数，输出测试用例信息以及函数本身的输出信息。</p> <div class="language- extra-class"><pre><code>running 2 tests
+test tests::this_test_will_fail ... FAILED
+test tests::this_test_will_pass ... ok
+
+successes:
+
+---- tests::this_test_will_pass stdout ----
+I got the value 4
+
+
+successes:
+    tests::this_test_will_pass
+
+failures:
+
+---- tests::this_test_will_fail stdout ----
+I got the value 8
+thread 'main' panicked at 'assertion failed: `(left == right)`
+left: `5`,
+right: `10`', src/lib.rs:19:9
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
+
+
+failures:
+    tests::this_test_will_fail
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out
+
+error: test failed, to rerun pass '--lib'
+</code></pre></div><h3 id="running-a-subset-of-tests-by-name"><a href="#running-a-subset-of-tests-by-name" class="header-anchor">#</a> Running a Subset of Tests by Name</h3> <p>通过指定测试用例名称来运行特定的测试用例。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">pub</span> <span class="token keyword">fn</span> <span class="token function">add_two</span><span class="token punctuation">(</span>a<span class="token punctuation">:</span> i32<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> i32 <span class="token punctuation">{</span>
+    a <span class="token operator">+</span> <span class="token number">2</span>
+<span class="token punctuation">}</span>
+
+<span class="token attribute attr-name">#[cfg(test)]</span>
+<span class="token keyword">mod</span> tests <span class="token punctuation">{</span>
+    <span class="token keyword">use</span> <span class="token keyword">super</span><span class="token punctuation">::</span><span class="token operator">*</span><span class="token punctuation">;</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">add_two_and_two</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token function">add_two</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">add_three_and_two</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token function">add_two</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">one_hundred</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">102</span><span class="token punctuation">,</span> <span class="token function">add_two</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br></div></div><p>默认运行测试用例<code>cargo test</code>时，所有的用例都会被执行：</p> <div class="language- extra-class"><pre><code>running 3 tests
+test tests::add_three_and_two ... ok
+test tests::add_two_and_two ... ok
+test tests::one_hundred ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+Doc-tests adder
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre></div><h4 id="运行单个测试"><a href="#运行单个测试" class="header-anchor">#</a> 运行单个测试</h4> <p><code>cargo test [test_name]</code>，例如<code>cargo test one_hundred</code>。</p> <div class="language- extra-class"><pre><code>running 1 test
+test tests::one_hundred ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out
+</code></pre></div><p>可以看到输出信息中说明<code>2 filtered out</code>，有两个用例被过滤掉了。</p> <h4 id="运行多个测试"><a href="#运行多个测试" class="header-anchor">#</a> 运行多个测试</h4> <p>我们可以在指定测试用例名称时，只指定其中的一部分名称。Rust会运行所有名称包含我们参数的测试用例。例如<code>cargo test add</code></p> <div class="language- extra-class"><pre><code>running 2 tests
+test tests::add_three_and_two ... ok
+test tests::add_two_and_two ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out
+</code></pre></div><p>有两个用例名称包含add，所以他们都被运行了。</p> <h3 id="默认过滤某些用例除非明确指定"><a href="#默认过滤某些用例除非明确指定" class="header-anchor">#</a> 默认过滤某些用例除非明确指定</h3> <p>在测试用例前加<code>ignore</code>参数来默认跳过该用例。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token attribute attr-name">#[test]</span>
+<span class="token keyword">fn</span> <span class="token function">it_works</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">+</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token attribute attr-name">#[test]</span>
+<span class="token attribute attr-name">#[ignore]</span>
+<span class="token keyword">fn</span> <span class="token function">expensive_test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// code that takes an hour to run</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br></div></div><p>运行<code>cargo test</code>时，输出如下</p> <div class="language- extra-class"><pre><code>running 2 tests
+test expensive_test ... ignored
+test it_works ... ok
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out
+
+Doc-tests adder
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre></div><p>可以看出<code>expensive_test</code>显示被跳过了。</p> <p>增加<code>cargo test -- --ignore</code>参数，运行有<code>ignore</code>属性的测试用例。</p> <div class="language- extra-class"><pre><code>running 1 test
+test expensive_test ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out
+
+Doc-tests adder
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre></div><p>可以将一些耗时任务标记为<code>ignore</code>单独执行。</p> <h2 id="section-3-test-organization"><a href="#section-3-test-organization" class="header-anchor">#</a> Section 3 - Test Organization</h2> <p>Rust社区认为测试主要分为：单元测试和集成测试。单元测试更小更集中，同一时间只隔离测试一个模块，并且可以测试私有接口。集成测试更系统化，包含范围可能延展到我们整个库，且仅测试公有接口。</p> <h3 id="单元测试"><a href="#单元测试" class="header-anchor">#</a> 单元测试</h3> <p>单元测试的目的是为了在隔离环境下快速地测试某个单一模块是否能按预期运行。单元测试放在src目录下的每个文件中，里面包含要测试的代码。最方便的方法是每个文件中都创建一个test模块，并且带测试模块前加<code>#[cfg(test)]</code>注释。</p> <h4 id="the-tests-module-and-cfg-test"><a href="#the-tests-module-and-cfg-test" class="header-anchor">#</a> The Tests Module and #[cfg(test)]</h4> <p><code>#[cfg(test)]</code>注释告诉编译器，只有当运行<code>cargo test</code>命令时，才进行这些测试用例，<code>cargo build</code>的时候不运行这些测试用例。这样可以缩短编译时间，而且不包含测试用例代码，也控制了编译结果文件的大小。由于集成测试在其他的目录中，所以不需要这个注释。由于单元测试和逻辑代码是在一起的，因此需要将他们标记，不要构建到最终的结果中。</p> <p>之前我们新建lib项目时，cargo自动生成了一个测试模块。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token attribute attr-name">#[cfg(test)]</span>
+<span class="token keyword">mod</span> tests <span class="token punctuation">{</span>
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">it_works</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">+</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br></div></div><p><code>cfg</code>代表配置并且告诉编译器下面的内容只有满足了该配置时，才会被编译。在这个例子中，模块配置是<code>test</code>，这是Rust提供的用来编译和执行测试用例的。只有当我们运行<code>cargo test</code>时Cargo才会编译该测试代码。除了测试模块下的测试用例不会被编译，其他的一些帮助函数也不会被编译。</p> <h4 id="testing-private-functions"><a href="#testing-private-functions" class="header-anchor">#</a> Testing Private Functions</h4> <p>社区一直有争论，私有接口应不应该直接去测试私有接口。其他语言测试私有接口是很困难的。不论你持何种观念，Rust私有规则都允许你直接测试私有接口。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">pub</span> <span class="token keyword">fn</span> <span class="token function">add_two</span><span class="token punctuation">(</span>a<span class="token punctuation">:</span> i32<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> i32 <span class="token punctuation">{</span>
+    <span class="token function">internal_adder</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">fn</span> <span class="token function">internal_adder</span><span class="token punctuation">(</span>a<span class="token punctuation">:</span> i32<span class="token punctuation">,</span> b<span class="token punctuation">:</span> i32<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> i32 <span class="token punctuation">{</span>
+    a <span class="token operator">+</span> b
+<span class="token punctuation">}</span>
+
+<span class="token attribute attr-name">#[cfg(test)]</span>
+<span class="token keyword">mod</span> tests <span class="token punctuation">{</span>
+    <span class="token keyword">use</span> <span class="token keyword">super</span><span class="token punctuation">::</span><span class="token operator">*</span><span class="token punctuation">;</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">internal</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token function">internal_adder</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br></div></div><p><code>internal_adder</code>函数没有<code>pub</code>关键字，但是依然可以在<code>tests</code>模块中引入测试。Rust不强制测试私有接口。</p> <h3 id="集成测试"><a href="#集成测试" class="header-anchor">#</a> 集成测试</h3> <p>Rust中的集成测试代码完全处于你的库之外。集成测试调用库的方式和其他代码一样，也就是说集成测试可以只调用部分API。集成测试的目的是检测你的库中多个模块一起工作时正确与否。即使单元测试通过，集成测试有可能也会出现问题。创建集成测试首先需要创建<em>tests</em>目录。</p> <h4 id="tests目录"><a href="#tests目录" class="header-anchor">#</a> tests目录</h4> <p>在于<em>src</em>目录同级的根目录下创建<em>tests</em>目录，Cargo会在这个目录下查找集成测试文件。然后可以任意在这个目录下添加测试文件，Cargo会将这些文件编译成独立的crate。</p> <p>让我们来创建一个集成测试目录，并创建一个新文件<em>tests/integration_test.rs</em>。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">use</span> adder<span class="token punctuation">;</span>
+
+<span class="token attribute attr-name">#[test]</span>
+<span class="token keyword">fn</span> <span class="token function">it_adds_two</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> adder<span class="token punctuation">::</span><span class="token function">add_two</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br></div></div><p>这个文件中的代码不需要用<code>#[cfg(test)]</code>标注，Rust会对<em>tests</em>目录下的文件特殊处理，只有运行<code>cargo test</code>的时候才会编译这个目录下的文件。运行<code>cargo test</code>看下效果。</p> <div class="language- extra-class"><pre><code>  Compiling adder v0.1.0 (/Users/ksleo/private/rust_learn/adder)
+   Finished test [unoptimized + debuginfo] target(s) in 1.07s
+    Running target/debug/deps/adder-9d658908b5cc4b63
+
+running 1 test
+test tests::internal ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+    Running target/debug/deps/integration_test-48170a4e87fe33c4
+
+running 1 test
+test it_adds_two ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+    Doc-tests adder
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre></div><p>可以看到有三块内容输出：单元测试、集成测试和文档测试。使用<code>--test &lt;testname&gt;</code>可以仅执行某部分集成测试。</p> <h3 id="submodules-in-integration-tests"><a href="#submodules-in-integration-tests" class="header-anchor">#</a> Submodules in Integration Tests</h3> <p>当你的集成测试越来越多时，你可能想要把这些测试组织到<em>test</em>目录下不同的文件中。比如，可以按照测试的函数功能来组织测试用例。之前已经提到过，集成测试会被编译成单独的crate。</p> <p>把集成测试当作独立的crate，有助于创建独立的作用域，让集成测试的场景更接近其他用户调用你的crate的真实场景。</p> <p>当我们在<em>tests</em>目录下，想抽象一些通用代码供各个集成测试调用时，Rust会把这写通用代码也当作集成测试编译成单独的crate。例如，创建<em>tests/common.rs</em>文件，并写入一个<code>setup</code>函数。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">fn</span> <span class="token function">setup</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// something</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><p>在运行<code>cargo test</code>时，会发现测试结果输出多了一块。</p> <div class="language- extra-class"><pre><code>    Running target/debug/deps/common-7064e1b6d2e271be
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre></div><p><em>common.rs</em>中的内容被当作测试用例执行和打印不是我们想要的结果。我们只想它里面的代码供其他测试用例调用。可以通过创建<em>tests/mod/common.rs</em>来代替，Rust不会将这个目录下的文件当作集成测试来处理。此时，测试结果输出中也不会包含相应的内容了。</p> <p>当我们创建这个通用代码之后，就可以在其他集成测试文件中调用。例如：</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">use</span> adder<span class="token punctuation">;</span>
+
+<span class="token keyword">mod</span> common<span class="token punctuation">;</span>
+
+<span class="token attribute attr-name">#[test]</span>
+<span class="token keyword">fn</span> <span class="token function">it_adds_two</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    common<span class="token punctuation">::</span><span class="token function">setup</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> adder<span class="token punctuation">::</span><span class="token function">add_two</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br></div></div><blockquote><p>注意<code>mod common;</code>的写法，之前讲过分号结尾是将该模块引入。</p></blockquote> <h3 id="integration-tests-for-binary-crates"><a href="#integration-tests-for-binary-crates" class="header-anchor">#</a> Integration Tests for Binary Crates</h3> <p>如果你的项目只有<em>src/main.rs</em>，即你的项目是一个可执行crate，此时不能创建集成测试。只有库crate才能创建集成测试，库crate导出的方法才能被其他crate用use导入和使用。可执行crate导出的函数只能内部使用。</p> <p>这也是Rust项目在<em>src/main.rs</em>文件中只调用<em>src/lib.rs</em>逻辑的原因之一。使用这种架构的话，集成测试来测试占绝大部分比例的库crate代码中的功能，而<em>src/main.rs</em>中极少比例且几乎不含功能逻辑的调用代码不需要测试，仅需要阅读就可以判断其是否正确运行。</p></div> <footer class="page-edit"><!----> <!----></footer> <!----> </main></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.6f46cf57.js" defer></script><script src="/assets/js/2.49ce1412.js" defer></script><script src="/assets/js/14.e42e08a4.js" defer></script>
+  </body>
+</html>

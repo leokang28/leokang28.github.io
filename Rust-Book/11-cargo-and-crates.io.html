@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Chapter 11 - 关于Cargo和Crates.io | KSLEO</title>
+    <meta name="generator" content="VuePress 1.5.2">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="description" content="Just playing around">
+    <link rel="preload" href="/assets/css/0.styles.35aebc44.css" as="style"><link rel="preload" href="/assets/js/app.6f46cf57.js" as="script"><link rel="preload" href="/assets/js/2.49ce1412.js" as="script"><link rel="preload" href="/assets/js/16.e8b84c5d.js" as="script"><link rel="prefetch" href="/assets/js/10.86ad4e85.js"><link rel="prefetch" href="/assets/js/11.e7ef91a0.js"><link rel="prefetch" href="/assets/js/12.14d347b9.js"><link rel="prefetch" href="/assets/js/13.beaf8085.js"><link rel="prefetch" href="/assets/js/14.e42e08a4.js"><link rel="prefetch" href="/assets/js/15.41e8c95f.js"><link rel="prefetch" href="/assets/js/17.4d574f20.js"><link rel="prefetch" href="/assets/js/18.a8a8e164.js"><link rel="prefetch" href="/assets/js/19.118b3a66.js"><link rel="prefetch" href="/assets/js/20.ccdc0717.js"><link rel="prefetch" href="/assets/js/21.88ceead5.js"><link rel="prefetch" href="/assets/js/22.500d3be7.js"><link rel="prefetch" href="/assets/js/23.b7ca339b.js"><link rel="prefetch" href="/assets/js/24.0360313a.js"><link rel="prefetch" href="/assets/js/25.6083b636.js"><link rel="prefetch" href="/assets/js/26.1bd9d3eb.js"><link rel="prefetch" href="/assets/js/27.beb716dd.js"><link rel="prefetch" href="/assets/js/28.bb093ca6.js"><link rel="prefetch" href="/assets/js/29.5b527549.js"><link rel="prefetch" href="/assets/js/3.8a6c11df.js"><link rel="prefetch" href="/assets/js/30.796276de.js"><link rel="prefetch" href="/assets/js/31.666b101e.js"><link rel="prefetch" href="/assets/js/32.654129d9.js"><link rel="prefetch" href="/assets/js/33.e479db51.js"><link rel="prefetch" href="/assets/js/4.e2a8d64a.js"><link rel="prefetch" href="/assets/js/5.dd4c966a.js"><link rel="prefetch" href="/assets/js/6.00a6c78e.js"><link rel="prefetch" href="/assets/js/7.9330d48e.js"><link rel="prefetch" href="/assets/js/8.560dd961.js"><link rel="prefetch" href="/assets/js/9.da6c1180.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.35aebc44.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container no-sidebar"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">KSLEO</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/directory/" class="nav-link">
+  笔记📒
+</a></div><div class="nav-item"><a href="http://leokang28.github.io" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  博客🔗
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/directory/" class="nav-link">
+  笔记📒
+</a></div><div class="nav-item"><a href="http://leokang28.github.io" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  博客🔗
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav>  <!----> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="chapter-11-关于cargo和crates-io"><a href="#chapter-11-关于cargo和crates-io" class="header-anchor">#</a> Chapter 11 - 关于Cargo和Crates.io</h1> <p>目前为止我们只使用到cargo创建、运行、测试、构建等基础功能。本章会介绍它的其他功能。包括：</p> <ul><li>使用配置文件定制构建</li> <li>在<a href="https://crates.io/" target="_blank" rel="noopener noreferrer">crates.io<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>发布库</li> <li>使用工作空间管理大型项目</li> <li>安装<a href="https://crates.io/" target="_blank" rel="noopener noreferrer">crates.io<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>上的可执行文件</li> <li>定制化命令扩展cargo</li></ul> <p>可以在<a href="https://doc.rust-lang.org/cargo/" target="_blank" rel="noopener noreferrer">cargo官方文档<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>查看全部功能说明。</p> <h2 id="section-1-使用配置文件定制构建"><a href="#section-1-使用配置文件定制构建" class="header-anchor">#</a> Section 1 - 使用配置文件定制构建</h2> <p>Rust中，*配置文件（release profiles）*是预定义的、可自定义的文件，不同的配置选项可以对代码编译进行控制。每个文件的配置都是独立的。</p> <p>cargo有两个主要的配置文件</p> <ul><li><code>dev</code>配置文件。<code>cargo build</code>命令会使用这个配置文件。包含针对开发环境的默认配置</li> <li><code>release</code>配置文件。<code>cargo build --release</code>命令会使用这个配置文件。包含针对发布环境的默认配置。</li></ul> <p>当<em>Cargo.toml</em>文件中没有<code>[profile.*]</code>声明时，cargo会使用默认配置。对想要修改的配置文件加<code>[profile.*]</code>声明，就可以对默认配置进行覆盖和定制化。例如：</p> <div class="language-toml line-numbers-mode"><pre class="language-toml"><code><span class="token punctuation">[</span><span class="token table class-name">profile.dev</span><span class="token punctuation">]</span>
+<span class="token key property">opt-level</span> <span class="token punctuation">=</span> <span class="token number">0</span>
+
+<span class="token punctuation">[</span><span class="token table class-name">profile.release</span><span class="token punctuation">]</span>
+<span class="token key property">opt-level</span> <span class="token punctuation">=</span> <span class="token number">3</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><p>分别对<code>dev</code>和<code>release</code>配置文件，针对<code>opt-level</code>配置进行了定制化。</p> <h2 id="section-2-发布crate到crates-io"><a href="#section-2-发布crate到crates-io" class="header-anchor">#</a> Section 2 - 发布Crate到Crates.io</h2> <p>Rust和Cargo有很多功能，辅助包发布和查找。首先介绍三个功能然后再介绍如何发布自己的包。</p> <h3 id="有用的文档注释"><a href="#有用的文档注释" class="header-anchor">#</a> 有用的文档注释</h3> <p>准确描述你的包有助于让其他人更容易地了解如何使用、何时使用你的包，所以有用的文档很有必要。代码注释时使用双斜线<code>//</code>，Rust也有专门针对文档的注释，称之为<em>文档注释（documentation comment）</em>，文档注释会用来生成html页面。html展示了你对公开API的介绍，文档内容应当是介绍如何使用你的API，而不是描述你如何实现的这些API。</p> <p>文档注释使用三斜线<code>///</code>，并且支持md语法。文档注释放置于被描述对象之前。例如我们创建一个<code>my_crate</code>库，里面包含一个<code>add_one</code>函数。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token comment">/// Adds one to the number given.</span>
+<span class="token comment">///</span>
+<span class="token comment">/// # Examples</span>
+<span class="token comment">///</span>
+<span class="token comment">/// ```</span>
+<span class="token comment">/// let arg = 5;</span>
+<span class="token comment">/// let answer = my_crate::add_one(arg);</span>
+<span class="token comment">///</span>
+<span class="token comment">/// assert_eq!(6, answer);</span>
+<span class="token comment">/// ```</span>
+<span class="token keyword">pub</span> <span class="token keyword">fn</span> <span class="token function">add_one</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span> i32<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> i32 <span class="token punctuation">{</span>
+    x <span class="token operator">+</span> <span class="token number">1</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br></div></div><p>我们描述了<code>add_one</code>函数的功能是什么，然后<code>Examples</code>下面是一个示例代码块。<code>cargo doc</code>命令可以基于这些描述生成html文档。这个命令运行了Rust提供的<code>rustdoc</code>工具，并且将生成的html文件放置于<em>target/doc</em>目录下。</p> <p>使用<code>--open</code>参数会在文档创建完成之后打开浏览器，效果如下：
+<img src="https://gitee.com/ksleo/source/raw/master/QQ20200901-165110@2x.png" alt="rust doc"></p> <h4 id="常用模块"><a href="#常用模块" class="header-anchor">#</a> 常用模块</h4> <p>我们已经使用<code># Examples</code>md语法，创建了一个示例代码模块，下面还有一些常用的模块：</p> <ul><li><strong>Panics</strong>：会导致代码出错的场景。</li> <li><strong>Errors</strong>：如果函数返回的是一个<code>Result</code>，描述一下返回的错误类型，以及如何处理这些错误。</li> <li><strong>Safety</strong>：如果这个函数调用是<code>unsafe</code>的，应当描述函数为何是<code>unsale</code>，以及涵盖希望由调用者维护的不变性（invariants）。</li></ul> <h4 id="文档注释测试用例"><a href="#文档注释测试用例" class="header-anchor">#</a> 文档注释测试用例</h4> <p><code>cargo test</code>命令会将文档注释中examples模块下的示例代码作为测试用例运行。这会保证你的代码和示例代码是同步的，因为当你修改其中任意部分时，如果出错文档测试会捕获到。</p> <h4 id="目录性描述"><a href="#目录性描述" class="header-anchor">#</a> 目录性描述</h4> <p>对crate包含内容的一个总体描述。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token comment">//! # My Crate</span>
+<span class="token comment">//!</span>
+<span class="token comment">//! `my_crate` is a collection of utilities to make performing certain</span>
+<span class="token comment">//! calculations more convenient.</span>
+
+<span class="token comment">/// Adds one to the number given.</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br></div></div><p><img src="https://gitee.com/ksleo/source/raw/master/QQ20200901-171515@2x.png" alt="rust doc"></p> <h3 id="使用pub-use导出公有api"><a href="#使用pub-use导出公有api" class="header-anchor">#</a> 使用<code>pub use</code>导出公有API</h3> <p>在写代码时，你的代码结构可能自己比较清楚，但对于使用者来说可能不是特别方便。在组织代码时，可能进行了很深的模块嵌套，但是当使用者想要使用一个定义的很深的API时，找到它就比较费劲了。例如：<code>use my_crate::some_module::another_module::UsefulType;</code>。显然<code>use my_crate::UsefulType</code>对调用者更加的友好。</p> <p>因此当发布包时，API的结构是首先要考虑的问题。因为使用者不会像你一样熟悉你的代码结构。</p> <p>当一个API对调用者不太友好时，你不需要修改你的代码组织，你可以使用<code>pub use</code>二次导出。<code>pub use</code>导入一个共有API，并且将其再对外公开暴露。</p> <p>创建一个<code>art</code>包，它的内容如下所示：</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token comment">//! # Art</span>
+<span class="token comment">//!</span>
+<span class="token comment">//! A library for modeling artistic concepts.</span>
+
+<span class="token keyword">pub</span> <span class="token keyword">mod</span> kinds <span class="token punctuation">{</span>
+    <span class="token comment">/// The primary colors according to the RYB color model.</span>
+    <span class="token keyword">pub</span> <span class="token keyword">enum</span> PrimaryColor <span class="token punctuation">{</span>
+        Red<span class="token punctuation">,</span>
+        Yellow<span class="token punctuation">,</span>
+        Blue<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/// The secondary colors according to the RYB color model.</span>
+    <span class="token keyword">pub</span> <span class="token keyword">enum</span> SecondaryColor <span class="token punctuation">{</span>
+        Orange<span class="token punctuation">,</span>
+        Green<span class="token punctuation">,</span>
+        Purple<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">pub</span> <span class="token keyword">mod</span> utils <span class="token punctuation">{</span>
+    <span class="token keyword">use</span> <span class="token keyword">crate</span><span class="token punctuation">::</span>kinds<span class="token punctuation">::</span><span class="token operator">*</span><span class="token punctuation">;</span>
+
+    <span class="token comment">/// Combines two primary colors in equal amounts to create</span>
+    <span class="token comment">/// a secondary color.</span>
+    <span class="token keyword">pub</span> <span class="token keyword">fn</span> <span class="token function">mix</span><span class="token punctuation">(</span>c1<span class="token punctuation">:</span> PrimaryColor<span class="token punctuation">,</span> c2<span class="token punctuation">:</span> PrimaryColor<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> SecondaryColor <span class="token punctuation">{</span>
+        <span class="token comment">// --snip--</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br></div></div><p>查看它的文档：
+<img src="https://gitee.com/ksleo/source/raw/master/QQ20200901-173414@2x.png" alt="rust doc"></p> <p><code>PrimaryColor</code>、<code>SecondaryColor</code>和<code>mix</code>都没有在首页展示出来，需要我们手动点入这些模块。并且其他模块调用我们的包时，引用的链路特别长：</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">use</span> art<span class="token punctuation">::</span>kinds<span class="token punctuation">::</span>PrimaryColor<span class="token punctuation">;</span>
+<span class="token keyword">use</span> art<span class="token punctuation">::</span>utils<span class="token punctuation">::</span>mix<span class="token punctuation">;</span>
+
+<span class="token keyword">fn</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> red <span class="token operator">=</span> PrimaryColor<span class="token punctuation">::</span>Red<span class="token punctuation">;</span>
+    <span class="token keyword">let</span> yellow <span class="token operator">=</span> PrimaryColor<span class="token punctuation">::</span>Yellow<span class="token punctuation">;</span>
+    <span class="token function">mix</span><span class="token punctuation">(</span>red<span class="token punctuation">,</span> yellow<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br></div></div><p>为了移除这个调用者冗长的调用链路，我们可以在自己的包中，将这些API进行二次导出：</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">pub</span> <span class="token keyword">use</span> <span class="token keyword">self</span><span class="token punctuation">::</span>kinds<span class="token punctuation">::</span>PrimaryColor<span class="token punctuation">;</span>
+<span class="token keyword">pub</span> <span class="token keyword">use</span> <span class="token keyword">self</span><span class="token punctuation">::</span>kinds<span class="token punctuation">::</span>SecondaryColor<span class="token punctuation">;</span>
+<span class="token keyword">pub</span> <span class="token keyword">use</span> <span class="token keyword">self</span><span class="token punctuation">::</span>utils<span class="token punctuation">::</span>mix<span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><p><code>PrimaryColor</code>、<code>SecondaryColor</code>和<code>mix</code>都更容易找到了，文档如下：
+<img src="https://gitee.com/ksleo/source/raw/master/QQ20200901-174144@2x.png" alt="rust doc"></p> <p>并且调用者在引用代码，代码量也更少：</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">use</span> art<span class="token punctuation">::</span>PrimaryColor<span class="token punctuation">;</span>
+<span class="token keyword">use</span> art<span class="token punctuation">::</span>mix<span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><h3 id="创建crates-io账号"><a href="#创建crates-io账号" class="header-anchor">#</a> 创建Crates.io账号</h3> <p>首先去<a href="https://crates.io/" target="_blank" rel="noopener noreferrer">crates.io<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>注册一个账号，验证邮箱之后，获取API token。然后在终端使用token登陆。</p> <div class="language- extra-class"><pre><code>cargo login abcdefghijklmnopqrstuvwxyz012345
+</code></pre></div><p>token会被存储在*~/.cargo/credentials.*文件下。注意不要将token分享出去。</p> <h3 id="为新包添加元数据"><a href="#为新包添加元数据" class="header-anchor">#</a> 为新包添加元数据</h3> <p>发布之前需要在<em>Cargo.toml</em>文件的[package]模块下追加一些元数据。</p> <p>注意你的包名必须是唯一的。当你在本地开发时，跟目录名称可以随意，但是在发布时，元数据当中的包名称必须是唯一的，不能跟别人的包名称冲突。因此在发布之前可以去网站上先搜索一下你的名字有没有被使用。</p> <p><em>Cargo.toml</em>文件下的[package]模块中定义包名称：</p> <div class="language-toml line-numbers-mode"><pre class="language-toml"><code><span class="token punctuation">[</span><span class="token table class-name">package</span><span class="token punctuation">]</span>
+<span class="token key property">name</span> <span class="token punctuation">=</span> <span class="token string">&quot;ksleo_public_test&quot;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p>当你选好唯一的名称之后，使用<code>cargo publish</code>发布，会出现一个错误</p> <blockquote><p>error: api errors (status 200 OK): missing or empty metadata fields: description, license. Please see https://doc.rust-lang.org/cargo/reference/manifest.html for how to upload metadata</p></blockquote> <p>因为你的项目还缺少一些关键信息：描述和证书。描述你的包是做什么用，并且你的包是基于什么证书给别人使用的。</p> <div class="language-toml line-numbers-mode"><pre class="language-toml"><code><span class="token punctuation">[</span><span class="token table class-name">package</span><span class="token punctuation">]</span>
+<span class="token key property">license</span> <span class="token punctuation">=</span> <span class="token string">&quot;MIT&quot;</span>
+<span class="token key property">description</span> <span class="token punctuation">=</span> <span class="token string">&quot;just for pub test&quot;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><p>在[package]模块下加入这些内容后，就可以成功发布了。</p> <h3 id="发布新版本"><a href="#发布新版本" class="header-anchor">#</a> 发布新版本</h3> <p>修改<em>Cargo.toml</em>文件下的版本号，重新发布即可。</p> <h3 id="使用cargo-yank禁用版本"><a href="#使用cargo-yank禁用版本" class="header-anchor">#</a> 使用<code>cargo yank</code>禁用版本</h3> <p>cargo不支持删除某个历史版本，但可以将历史版本禁用，防止其他人将该版本加入依赖。</p> <p>yanking只能防止新项目将该版本作为依赖，已存在的项目依旧可以下载该版本。</p> <p>下面的命令就将1.0.1版本禁用了，任何新项目都不能再依赖该版本</p> <blockquote><p>$ cargo yank --vers 1.0.1</p></blockquote> <p>如果要撤销某个版本的禁用，可以使用<code>--undo</code>参数</p> <blockquote><p>$ cargo yank --vers 1.0.1 --undo</p></blockquote> <h2 id="section-3-cargo工作空间"><a href="#section-3-cargo工作空间" class="header-anchor">#</a> Section 3 - Cargo工作空间</h2> <p>在开发过程中，你的包会变得越来越大，此时应该对它们进一步切分。在这种场景下，Cargo提供了*工作空间（work space）*的功能让你来管理一些相关的包。</p> <h3 id="创建工作空间"><a href="#创建工作空间" class="header-anchor">#</a> 创建工作空间</h3> <p>工作空间是一组共享<em>Cargo.toml</em>文件和输出目录的包集合。创建工作空间有很多方式，下面展示最常用的一种。我们将创建包含1个可执行crate和1个库crate的工作空间。可执行crate提供入口函数<code>main</code>，其余库crate提供方法。</p> <p>首先创建一个<em>add</em>目录。然后进入目录创建<em>Cargo.toml</em>文件。这个toml文件不会包含之前出现的[package]块，或者其他元数据。它以[workspace]块开始，下面会定义工作空间所包含的成员。</p> <div class="language-toml line-numbers-mode"><pre class="language-toml"><code><span class="token punctuation">[</span><span class="token table class-name">workspace</span><span class="token punctuation">]</span>
+
+<span class="token key property">members</span> <span class="token punctuation">=</span> <span class="token punctuation">[</span>
+    <span class="token string">&quot;adder&quot;</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><p>然后在<em>add</em>目录下新建一个可执行包<code>adder</code>。最后使用<code>cargo build</code>创建工作空间，此时项目结构应该如下：</p> <div class="language- extra-class"><pre><code>├── Cargo.lock
+├── Cargo.toml
+├── adder
+│   ├── Cargo.toml
+│   └── src
+│       └── main.rs
+└── target
+</code></pre></div><p>工作空间根目录有一个放置编译结果的<em>target</em>目录，adder包内部没有<em>target</em>目录了。就算我们进入<em>adder</em>项目运行<code>Cargo build</code>，编译结果还是会被存放到根目录下的<em>target</em>目录中，而不是<em>add/adder/target</em>目录。Cargo这样组织<em>target</em>目录是因为，工作空间下的包是相互依赖的，如果每个包都有自己的<em>target</em>目录来存放编译结果，则所有的包都需要互相为其他包构建一份。</p> <h3 id="创建第二个包"><a href="#创建第二个包" class="header-anchor">#</a> 创建第二个包</h3> <p>接下来创建工作空间下的第二个包<code>add_one</code>。修改根目录下的<em>Cargo.toml</em>文件。</p> <div class="language-toml line-numbers-mode"><pre class="language-toml"><code><span class="token punctuation">[</span><span class="token table class-name">workspace</span><span class="token punctuation">]</span>
+
+<span class="token key property">members</span> <span class="token punctuation">=</span> <span class="token punctuation">[</span>
+    <span class="token string">&quot;adder&quot;</span><span class="token punctuation">,</span>
+    <span class="token string">&quot;add-one&quot;</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br></div></div><p>然后创建一个库crate。<code>cargo new add_one --lib</code>。现在目录应该包含以下内容</p> <div class="language- extra-class"><pre><code>├── Cargo.lock
+├── Cargo.toml
+├── add-one
+│   ├── Cargo.toml
+│   └── src
+│       └── lib.rs
+├── adder
+│   ├── Cargo.toml
+│   └── src
+│       └── main.rs
+└── target
+</code></pre></div><p>在<em>add-one/src/lib.rs</em>文件中添加一个<code>add_one</code>函数。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">pub</span> <span class="token keyword">fn</span> <span class="token function">add_one</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span>i32<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> i32 <span class="token punctuation">{</span>
+    x <span class="token operator">+</span> <span class="token number">1</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><p>接下来可执行crate可以对库crate进行依赖，首先在需要引入依赖的crate的toml文件中，定义[dependencies]模块。指定库crate的路径。</p> <div class="language-toml line-numbers-mode"><pre class="language-toml"><code><span class="token punctuation">[</span><span class="token table class-name">dependencies</span><span class="token punctuation">]</span>
+
+<span class="token key property">add-one</span> <span class="token punctuation">=</span> <span class="token punctuation">{</span> <span class="token key property">path</span> <span class="token punctuation">=</span> <span class="token string">&quot;../add-one&quot;</span> <span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><p>Cargo不会对依赖进行解析，所以需要我们明确指定crate间的依赖关系。</p> <p>接下来可以在<code>adder</code>crate中通过<code>use</code>引入<code>add-one</code>模块了。</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">use</span> add_one<span class="token punctuation">;</span>
+
+<span class="token keyword">fn</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> num <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+    <span class="token function">println!</span><span class="token punctuation">(</span>
+        <span class="token string">&quot;Hello, world! {} plus one is {}!&quot;</span><span class="token punctuation">,</span>
+        num<span class="token punctuation">,</span>
+        add_one<span class="token punctuation">::</span><span class="token function">add_one</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br></div></div><p>最后在根目录下运行<code>cargo build</code>构建。使用<code>cargo run</code>命令运行代码，使用<code>-p</code>参数指定运行的包：<code>cargo run -p adder</code>。</p> <h4 id="依赖外部包"><a href="#依赖外部包" class="header-anchor">#</a> 依赖外部包</h4> <p>整个工作空间只有根目录下有<em>Cargo.lock</em>文件，这样保证所有包使用的外部依赖都是相同的版本。如果你在每个包目录下的<em>Cargo.toml</em>文件中都指定了外部依赖，Cargo会将他们处理成统一的版本并记录在根目录下的<em>Cargo.lock</em>文件中。这样保证所有包使用的依赖都是兼容的。下面我们先在<em>add-one/Cargo.toml</em>文件中添加一个<code>rand</code>外部依赖。然后在文件中引用这个依赖并执行编译。</p> <div class="language-toml line-numbers-mode"><pre class="language-toml"><code><span class="token punctuation">[</span><span class="token table class-name">dependencies</span><span class="token punctuation">]</span>
+<span class="token key property">rand</span> <span class="token punctuation">=</span> <span class="token string">&quot;0.5.5&quot;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><div class="language- extra-class"><pre><code>  Updating crates.io index
+Downloaded libc v0.2.76
+ Compiling rand v0.5.6
+ Compiling add-one v0.1.0 (/Users/ksleo/private/add/add-one)
+ Compiling adder v0.1.0 (/Users/ksleo/private/add/adder)
+</code></pre></div><p>现在根目录下的<em>Cargo.lock</em>已经有了<code>add-one</code>依赖<code>rand</code>包的信息。尽管<code>rand</code>包以及在工作空间内部使用了，但是在<code>add-one</code>以外的包中，引入<code>rand</code>包还是会报错，除非我们在他们的<em>Cargo.toml</em>文件中也指定<code>rand</code>依赖。此时<em>Cargo.lock</em>文件中也会记录<code>adder</code>引用<code>rand</code>的信息，但是不会重新下载多余的代码。这种方式既保证所有包都使用同一个版本的外部依赖，又不会因为代码拷贝从而对空间造成浪费。</p> <h4 id="为工作空间添加测试"><a href="#为工作空间添加测试" class="header-anchor">#</a> 为工作空间添加测试</h4> <p>为<code>add-one</code>包的公有方法添加一个测试用例</p> <div class="language-rust line-numbers-mode"><pre class="language-rust"><code><span class="token keyword">pub</span> <span class="token keyword">fn</span> <span class="token function">add_one</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span> i32<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> i32 <span class="token punctuation">{</span>
+    x <span class="token operator">+</span> <span class="token number">1</span>
+<span class="token punctuation">}</span>
+
+<span class="token attribute attr-name">#[cfg(test)]</span>
+<span class="token keyword">mod</span> tests <span class="token punctuation">{</span>
+    <span class="token keyword">use</span> <span class="token keyword">super</span><span class="token punctuation">::</span><span class="token operator">*</span><span class="token punctuation">;</span>
+
+    <span class="token attribute attr-name">#[test]</span>
+    <span class="token keyword">fn</span> <span class="token function">it_works</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">assert_eq!</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token function">add_one</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br></div></div><p>运行<code>cargo test</code></p> <div class="language- extra-class"><pre><code>    Running target/debug/deps/add_one-f0253159197f7841
+running 1 test
+test tests::it_works ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+    Running target/debug/deps/adder-d6b6ef1ba6873bae
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+  Doc-tests add-one
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre></div><p>第一块内容表示<code>add-one</code>包有一个测试用例被运行；第二块表示<code>adder</code>包中没有测试用例可以执行；第三块表示<code>add-one</code>包中没有文档测试可以执行。在工作空间中执行测试，会将工作空间下所有包的测试用例都执行。</p> <p>也可以使用<code>-p</code>参数指定测试的包，与<code>cargo run</code>使用方式一样。</p> <p>如果你要发布你的包，那么你需要对每个包分别执行发布操作，<code>cargo publish</code>没有<code>--all</code>或者<code>-p</code>参数。</p> <h2 id="section-4-使用cargo-install从crates-io安装可执行文件"><a href="#section-4-使用cargo-install从crates-io安装可执行文件" class="header-anchor">#</a> Section 4 - 使用<code>cargo install</code>从crates.io安装可执行文件</h2> <p><code>cargo install</code>命令可以让你在本地下载和使用可执行crate。只能安装带有可执行编译目标的包。可执行编译目标是由具有<em>src/main.rs</em>文件，或者其他被指定为可执行文件的包，编译而来的可执行程序。相对应的库crate则不能独立运行，只能被其他crate引用。通常crate都会又README文件说明，crate是可执行crate还是库crate。</p> <p>可执行文件被下载到安装目录的<em>bin</em>目录下，如果你没有进行过任何自定义配置，这个目录是$HOME/.cargo/bin。确保该路径被添加进<code>$PATH</code>环境变量了，否则可能无法运行可执行文件。</p> <h2 id="section-5-子命令扩展cargo"><a href="#section-5-子命令扩展cargo" class="header-anchor">#</a> Section 5 - 子命令扩展Cargo</h2> <p>Cargo被设计为你不需要修改Cargo本身就可以扩展很多子命令，如果你的<code>$PATH</code>中有个可执行程序叫<code>cargo-something</code>，你可以用类似子命令的方式运行它<code>cargo something</code>。可以通过<code>cargo --list</code>命令列出所有cargo扩展命令。使用<code>cargo install</code>来安装这些可执行扩展，就像使用内置工具一样方便。</p></div> <footer class="page-edit"><!----> <!----></footer> <!----> </main></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.6f46cf57.js" defer></script><script src="/assets/js/2.49ce1412.js" defer></script><script src="/assets/js/16.e8b84c5d.js" defer></script>
+  </body>
+</html>
