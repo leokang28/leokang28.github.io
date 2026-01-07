@@ -1,0 +1,155 @@
+<!doctype html><html lang=en><head><meta charset=UTF-8><meta content="width=device-width,initial-scale=1.0" name=viewport><meta content="index, follow" name=robots><link href="https://leokang28.github.io/ rss.xml" rel=alternate title=RSS type=application/rss+xml><title>KSLEO | Cargo and Crates.io</title><link as=style href=https://leokang28.github.io/css/style.css rel=preload><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/reset-min.css rel=stylesheet><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/suCSS-min.css rel=stylesheet><link href=https://leokang28.github.io/css/style.css rel=stylesheet><link href=https://leokang28.github.io/css/custom.css rel=stylesheet><link href=https://leokang28.github.io/favicon.ico rel=icon type=image/x-icon><body><nav id=nav-bar><a class=site-title href=/>KSLEO</a><a href=/archive> /archive </a><a href=/tags> /tags </a><a href=/about> /about </a><div aria-label="Toggle theme" class=theme-toggle data-icon-base=https://leokang28.github.io/icons.svg data-icon-dark=#darkMode data-icon-light=#lightMode data-sound-src=https://leokang28.github.io/click.ogg id=theme-toggle role=button tabindex=0><svg class=icon><use id=theme-icon></use></svg></div></nav><main><article class=post><header class=post-header><time datetime=2020-12-15T07:21:19+08:00>Published on: <span class=accent-data>2020-12-15</span> </time><h1>Cargo and Crates.io</h1></header><div class=toc-container><h2>Table of content</h2><ul><li><a href=https://leokang28.github.io/blog/11-cargo-and-crates-io/#chapter-11-guan-yu-cargo-he-crates-io>Chapter 11 - 关于 Cargo 和 Crates.io</a> <ul><li><a href=https://leokang28.github.io/blog/11-cargo-and-crates-io/#section-1-shi-yong-pei-zhi-wen-jian-ding-zhi-gou-jian>Section 1 - 使用配置文件定制构建</a><li><a href=https://leokang28.github.io/blog/11-cargo-and-crates-io/#section-2-fa-bu-crate-dao-crates-io>Section 2 - 发布 Crate 到 Crates.io</a><li><a href=https://leokang28.github.io/blog/11-cargo-and-crates-io/#section-3-cargo-gong-zuo-kong-jian>Section 3 - Cargo 工作空间</a><li><a href=https://leokang28.github.io/blog/11-cargo-and-crates-io/#section-4-shi-yong-cargo-installcong-crates-io-an-zhuang-ke-zhi-xing-wen-jian>Section 4 - 使用cargo install从 crates.io 安装可执行文件</a><li><a href=https://leokang28.github.io/blog/11-cargo-and-crates-io/#section-5-zi-ming-ling-kuo-zhan-cargo>Section 5 - 子命令扩展 Cargo</a></ul></ul></div><div class=post-content><h1 id=chapter-11-guan-yu-cargo-he-crates-io>Chapter 11 - 关于 Cargo 和 Crates.io</h1><p>目前为止我们只使用到 cargo 创建、运行、测试、构建等基础功能。本章会介绍它的其他功能。包括：<ul><li>使用配置文件定制构建<li>在<a href=https://crates.io/ rel=noopener target=_blank>crates.io</a>发布库<li>使用工作空间管理大型项目<li>安装<a href=https://crates.io/ rel=noopener target=_blank>crates.io</a>上的可执行文件<li>定制化命令扩展 cargo</ul><p>可以在<a href=https://doc.rust-lang.org/cargo/ rel=noopener target=_blank>cargo 官方文档</a>查看全部功能说明。<h2 id=section-1-shi-yong-pei-zhi-wen-jian-ding-zhi-gou-jian>Section 1 - 使用配置文件定制构建</h2><p>Rust 中，*配置文件（release profiles）*是预定义的、可自定义的文件，不同的配置选项可以对代码编译进行控制。每个文件的配置都是独立的。<p>cargo 有两个主要的配置文件<ul><li><code>dev</code>配置文件。<code>cargo build</code>命令会使用这个配置文件。包含针对开发环境的默认配置<li><code>release</code>配置文件。<code>cargo build --release</code>命令会使用这个配置文件。包含针对发布环境的默认配置。</ul><p>当<em>Cargo.toml</em>文件中没有<code>[profile.*]</code>声明时，cargo 会使用默认配置。对想要修改的配置文件加<code>[profile.*]</code>声明，就可以对默认配置进行覆盖和定制化。例如：<pre class=language-toml data-lang=toml><code class=language-toml data-lang=toml>[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+</code></pre><p>分别对<code>dev</code>和<code>release</code>配置文件，针对<code>opt-level</code>配置进行了定制化。<h2 id=section-2-fa-bu-crate-dao-crates-io>Section 2 - 发布 Crate 到 Crates.io</h2><p>Rust 和 Cargo 有很多功能，辅助包发布和查找。首先介绍三个功能然后再介绍如何发布自己的包。<h3 id=you-yong-de-wen-dang-zhu-shi>有用的文档注释</h3><p>准确描述你的包有助于让其他人更容易地了解如何使用、何时使用你的包，所以有用的文档很有必要。代码注释时使用双斜线<code>//</code>，Rust 也有专门针对文档的注释，称之为<em>文档注释（documentation comment）</em>，文档注释会用来生成 html 页面。html 展示了你对公开 API 的介绍，文档内容应当是介绍如何使用你的 API，而不是描述你如何实现的这些 API。<p>文档注释使用三斜线<code>///</code>，并且支持 md 语法。文档注释放置于被描述对象之前。例如我们创建一个<code>my_crate</code>库，里面包含一个<code>add_one</code>函数。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>/// Adds one to the number given.
+///
+/// # Examples
+///
+/// ```
+/// let arg = 5;
+/// let answer = my_crate::add_one(arg);
+///
+/// assert_eq!(6, answer);
+/// ```
+pub fn add_one(x: i32) -> i32 {
+    x + 1
+}
+</code></pre><p>我们描述了<code>add_one</code>函数的功能是什么，然后<code>Examples</code>下面是一个示例代码块。<code>cargo doc</code>命令可以基于这些描述生成 html 文档。这个命令运行了 Rust 提供的<code>rustdoc</code>工具，并且将生成的 html 文件放置于<em>target/doc</em>目录下。<p>使用<code>--open</code>参数会在文档创建完成之后打开浏览器，效果如下： <img alt="rust doc" src=https://gitee.com/ksleo/source/raw/master/QQ20200901-165110@2x.png><h4 id=chang-yong-mo-kuai>常用模块</h4><p>我们已经使用<code># Examples</code>md 语法，创建了一个示例代码模块，下面还有一些常用的模块：<ul><li><strong>Panics</strong>：会导致代码出错的场景。<li><strong>Errors</strong>：如果函数返回的是一个<code>Result</code>，描述一下返回的错误类型，以及如何处理这些错误。<li><strong>Safety</strong>：如果这个函数调用是<code>unsafe</code>的，应当描述函数为何是<code>unsale</code>，以及涵盖希望由调用者维护的不变性（invariants）。</ul><h4 id=wen-dang-zhu-shi-ce-shi-yong-li>文档注释测试用例</h4><p><code>cargo test</code>命令会将文档注释中 examples 模块下的示例代码作为测试用例运行。这会保证你的代码和示例代码是同步的，因为当你修改其中任意部分时，如果出错文档测试会捕获到。<h4 id=mu-lu-xing-miao-shu>目录性描述</h4><p>对 crate 包含内容的一个总体描述。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>//! # My Crate
+//!
+//! `my_crate` is a collection of utilities to make performing certain
+//! calculations more convenient.
+
+/// Adds one to the number given.
+</code></pre><p><img alt="rust doc" src=https://gitee.com/ksleo/source/raw/master/QQ20200901-171515@2x.png><h3 id=shi-yong-pub-usedao-chu-gong-you-api>使用<code>pub use</code>导出公有 API</h3><p>在写代码时，你的代码结构可能自己比较清楚，但对于使用者来说可能不是特别方便。在组织代码时，可能进行了很深的模块嵌套，但是当使用者想要使用一个定义的很深的 API 时，找到它就比较费劲了。例如：<code>use my_crate::some_module::another_module::UsefulType;</code>。显然<code>use my_crate::UsefulType</code>对调用者更加的友好。<p>因此当发布包时，API 的结构是首先要考虑的问题。因为使用者不会像你一样熟悉你的代码结构。<p>当一个 API 对调用者不太友好时，你不需要修改你的代码组织，你可以使用<code>pub use</code>二次导出。<code>pub use</code>导入一个共有 API，并且将其再对外公开暴露。<p>创建一个<code>art</code>包，它的内容如下所示：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>//! # Art
+//!
+//! A library for modeling artistic concepts.
+
+pub mod kinds {
+    /// The primary colors according to the RYB color model.
+    pub enum PrimaryColor {
+        Red,
+        Yellow,
+        Blue,
+    }
+
+    /// The secondary colors according to the RYB color model.
+    pub enum SecondaryColor {
+        Orange,
+        Green,
+        Purple,
+    }
+}
+
+pub mod utils {
+    use crate::kinds::*;
+
+    /// Combines two primary colors in equal amounts to create
+    /// a secondary color.
+    pub fn mix(c1: PrimaryColor, c2: PrimaryColor) -> SecondaryColor {
+        // --snip--
+    }
+}
+</code></pre><p>查看它的文档： <img alt="rust doc" src=https://gitee.com/ksleo/source/raw/master/QQ20200901-173414@2x.png><p><code>PrimaryColor</code>、<code>SecondaryColor</code>和<code>mix</code>都没有在首页展示出来，需要我们手动点入这些模块。并且其他模块调用我们的包时，引用的链路特别长：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use art::kinds::PrimaryColor;
+use art::utils::mix;
+
+fn main() {
+    let red = PrimaryColor::Red;
+    let yellow = PrimaryColor::Yellow;
+    mix(red, yellow);
+}
+</code></pre><p>为了移除这个调用者冗长的调用链路，我们可以在自己的包中，将这些 API 进行二次导出：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub use self::kinds::PrimaryColor;
+pub use self::kinds::SecondaryColor;
+pub use self::utils::mix;
+</code></pre><p><code>PrimaryColor</code>、<code>SecondaryColor</code>和<code>mix</code>都更容易找到了，文档如下： <img alt="rust doc" src=https://gitee.com/ksleo/source/raw/master/QQ20200901-174144@2x.png><p>并且调用者在引用代码，代码量也更少：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use art::PrimaryColor;
+use art::mix;
+</code></pre><h3 id=chuang-jian-crates-io-zhang-hao>创建 Crates.io 账号</h3><p>首先去<a href=https://crates.io/ rel=noopener target=_blank>crates.io</a>注册一个账号，验证邮箱之后，获取 API token。然后在终端使用 token 登陆。<pre><code>cargo login abcdefghijklmnopqrstuvwxyz012345
+</code></pre><p>token 会被存储在*~/.cargo/credentials.*文件下。注意不要将 token 分享出去。<h3 id=wei-xin-bao-tian-jia-yuan-shu-ju>为新包添加元数据</h3><p>发布之前需要在<em>Cargo.toml</em>文件的[package]模块下追加一些元数据。<p>注意你的包名必须是唯一的。当你在本地开发时，跟目录名称可以随意，但是在发布时，元数据当中的包名称必须是唯一的，不能跟别人的包名称冲突。因此在发布之前可以去网站上先搜索一下你的名字有没有被使用。<p><em>Cargo.toml</em>文件下的[package]模块中定义包名称：<pre class=language-toml data-lang=toml><code class=language-toml data-lang=toml>[package]
+name = "ksleo_public_test"
+</code></pre><p>当你选好唯一的名称之后，使用<code>cargo publish</code>发布，会出现一个错误<blockquote><p>error: api errors (status 200 OK): missing or empty metadata fields: description, license. Please see https://doc.rust-lang.org/cargo/reference/manifest.html for how to upload metadata</blockquote><p>因为你的项目还缺少一些关键信息：描述和证书。描述你的包是做什么用，并且你的包是基于什么证书给别人使用的。<pre class=language-toml data-lang=toml><code class=language-toml data-lang=toml>[package]
+license = "MIT"
+description = "just for pub test"
+</code></pre><p>在[package]模块下加入这些内容后，就可以成功发布了。<h3 id=fa-bu-xin-ban-ben>发布新版本</h3><p>修改<em>Cargo.toml</em>文件下的版本号，重新发布即可。<h3 id=shi-yong-cargo-yankjin-yong-ban-ben>使用<code>cargo yank</code>禁用版本</h3><p>cargo 不支持删除某个历史版本，但可以将历史版本禁用，防止其他人将该版本加入依赖。<p>yanking 只能防止新项目将该版本作为依赖，已存在的项目依旧可以下载该版本。<p>下面的命令就将 1.0.1 版本禁用了，任何新项目都不能再依赖该版本<blockquote><p>$ cargo yank –vers 1.0.1</blockquote><p>如果要撤销某个版本的禁用，可以使用<code>--undo</code>参数<blockquote><p>$ cargo yank –vers 1.0.1 –undo</blockquote><h2 id=section-3-cargo-gong-zuo-kong-jian>Section 3 - Cargo 工作空间</h2><p>在开发过程中，你的包会变得越来越大，此时应该对它们进一步切分。在这种场景下，Cargo 提供了*工作空间（work space）*的功能让你来管理一些相关的包。<h3 id=chuang-jian-gong-zuo-kong-jian>创建工作空间</h3><p>工作空间是一组共享<em>Cargo.toml</em>文件和输出目录的包集合。创建工作空间有很多方式，下面展示最常用的一种。我们将创建包含 1 个可执行 crate 和 1 个库 crate 的工作空间。可执行 crate 提供入口函数<code>main</code>，其余库 crate 提供方法。<p>首先创建一个<em>add</em>目录。然后进入目录创建<em>Cargo.toml</em>文件。这个 toml 文件不会包含之前出现的[package]块，或者其他元数据。它以[workspace]块开始，下面会定义工作空间所包含的成员。<pre class=language-toml data-lang=toml><code class=language-toml data-lang=toml>[workspace]
+
+members = [
+    "adder",
+]
+</code></pre><p>然后在<em>add</em>目录下新建一个可执行包<code>adder</code>。最后使用<code>cargo build</code>创建工作空间，此时项目结构应该如下：<pre><code>├── Cargo.lock
+├── Cargo.toml
+├── adder
+│   ├── Cargo.toml
+│   └── src
+│       └── main.rs
+└── target
+</code></pre><p>工作空间根目录有一个放置编译结果的<em>target</em>目录，adder 包内部没有<em>target</em>目录了。就算我们进入<em>adder</em>项目运行<code>Cargo build</code>，编译结果还是会被存放到根目录下的<em>target</em>目录中，而不是<em>add/adder/target</em>目录。Cargo 这样组织<em>target</em>目录是因为，工作空间下的包是相互依赖的，如果每个包都有自己的<em>target</em>目录来存放编译结果，则所有的包都需要互相为其他包构建一份。<h3 id=chuang-jian-di-er-ge-bao>创建第二个包</h3><p>接下来创建工作空间下的第二个包<code>add_one</code>。修改根目录下的<em>Cargo.toml</em>文件。<pre class=language-toml data-lang=toml><code class=language-toml data-lang=toml>[workspace]
+
+members = [
+    "adder",
+    "add-one",
+]
+</code></pre><p>然后创建一个库 crate。<code>cargo new add_one --lib</code>。现在目录应该包含以下内容<pre><code>├── Cargo.lock
+├── Cargo.toml
+├── add-one
+│   ├── Cargo.toml
+│   └── src
+│       └── lib.rs
+├── adder
+│   ├── Cargo.toml
+│   └── src
+│       └── main.rs
+└── target
+</code></pre><p>在<em>add-one/src/lib.rs</em>文件中添加一个<code>add_one</code>函数。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub fn add_one(x:i32) -> i32 {
+    x + 1
+}
+</code></pre><p>接下来可执行 crate 可以对库 crate 进行依赖，首先在需要引入依赖的 crate 的 toml 文件中，定义[dependencies]模块。指定库 crate 的路径。<pre class=language-toml data-lang=toml><code class=language-toml data-lang=toml>[dependencies]
+
+add-one = { path = "../add-one" }
+</code></pre><p>Cargo 不会对依赖进行解析，所以需要我们明确指定 crate 间的依赖关系。<p>接下来可以在<code>adder</code>crate 中通过<code>use</code>引入<code>add-one</code>模块了。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use add_one;
+
+fn main() {
+    let num = 10;
+    println!(
+        "Hello, world! {} plus one is {}!",
+        num,
+        add_one::add_one(num)
+    );
+}
+</code></pre><p>最后在根目录下运行<code>cargo build</code>构建。使用<code>cargo run</code>命令运行代码，使用<code>-p</code>参数指定运行的包：<code>cargo run -p adder</code>。<h4 id=yi-lai-wai-bu-bao>依赖外部包</h4><p>整个工作空间只有根目录下有<em>Cargo.lock</em>文件，这样保证所有包使用的外部依赖都是相同的版本。如果你在每个包目录下的<em>Cargo.toml</em>文件中都指定了外部依赖，Cargo 会将他们处理成统一的版本并记录在根目录下的<em>Cargo.lock</em>文件中。这样保证所有包使用的依赖都是兼容的。下面我们先在<em>add-one/Cargo.toml</em>文件中添加一个<code>rand</code>外部依赖。然后在文件中引用这个依赖并执行编译。<pre class=language-toml data-lang=toml><code class=language-toml data-lang=toml>[dependencies]
+rand = "0.5.5"
+</code></pre><pre><code>  Updating crates.io index
+Downloaded libc v0.2.76
+ Compiling rand v0.5.6
+ Compiling add-one v0.1.0 (/Users/ksleo/private/add/add-one)
+ Compiling adder v0.1.0 (/Users/ksleo/private/add/adder)
+</code></pre><p>现在根目录下的<em>Cargo.lock</em>已经有了<code>add-one</code>依赖<code>rand</code>包的信息。尽管<code>rand</code>包以及在工作空间内部使用了，但是在<code>add-one</code>以外的包中，引入<code>rand</code>包还是会报错，除非我们在他们的<em>Cargo.toml</em>文件中也指定<code>rand</code>依赖。此时<em>Cargo.lock</em>文件中也会记录<code>adder</code>引用<code>rand</code>的信息，但是不会重新下载多余的代码。这种方式既保证所有包都使用同一个版本的外部依赖，又不会因为代码拷贝从而对空间造成浪费。<h4 id=wei-gong-zuo-kong-jian-tian-jia-ce-shi>为工作空间添加测试</h4><p>为<code>add-one</code>包的公有方法添加一个测试用例<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub fn add_one(x: i32) -> i32 {
+    x + 1
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(3, add_one(2));
+    }
+}
+</code></pre><p>运行<code>cargo test</code><pre><code>    Running target/debug/deps/add_one-f0253159197f7841
+running 1 test
+test tests::it_works ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+    Running target/debug/deps/adder-d6b6ef1ba6873bae
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+  Doc-tests add-one
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre><p>第一块内容表示<code>add-one</code>包有一个测试用例被运行；第二块表示<code>adder</code>包中没有测试用例可以执行；第三块表示<code>add-one</code>包中没有文档测试可以执行。在工作空间中执行测试，会将工作空间下所有包的测试用例都执行。<p>也可以使用<code>-p</code>参数指定测试的包，与<code>cargo run</code>使用方式一样。<p>如果你要发布你的包，那么你需要对每个包分别执行发布操作，<code>cargo publish</code>没有<code>--all</code>或者<code>-p</code>参数。<h2 id=section-4-shi-yong-cargo-installcong-crates-io-an-zhuang-ke-zhi-xing-wen-jian>Section 4 - 使用<code>cargo install</code>从 crates.io 安装可执行文件</h2><p><code>cargo install</code>命令可以让你在本地下载和使用可执行 crate。只能安装带有可执行编译目标的包。可执行编译目标是由具有<em>src/main.rs</em>文件，或者其他被指定为可执行文件的包，编译而来的可执行程序。相对应的库 crate 则不能独立运行，只能被其他 crate 引用。通常 crate 都会又 README 文件说明，crate 是可执行 crate 还是库 crate。<p>可执行文件被下载到安装目录的<em>bin</em>目录下，如果你没有进行过任何自定义配置，这个目录是$HOME/.cargo/bin。确保该路径被添加进<code>$PATH</code>环境变量了，否则可能无法运行可执行文件。<h2 id=section-5-zi-ming-ling-kuo-zhan-cargo>Section 5 - 子命令扩展 Cargo</h2><p>Cargo 被设计为你不需要修改 Cargo 本身就可以扩展很多子命令，如果你的<code>$PATH</code>中有个可执行程序叫<code>cargo-something</code>，你可以用类似子命令的方式运行它<code>cargo something</code>。可以通过<code>cargo --list</code>命令列出所有 cargo 扩展命令。使用<code>cargo install</code>来安装这些可执行扩展，就像使用内置工具一样方便。</div><div class=post-tags><a class=tag href=/tags/rust>#Rust </a></div></article></main><footer><hr><div id=footer-container><p>Made using <a rel="noopener noreferrer" href=https://github.com/Speyll/anemone target=_blank>anemone</a> Zola theme</div></footer><script defer src=https://leokang28.github.io/js/script.js></script>

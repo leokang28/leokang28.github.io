@@ -1,0 +1,510 @@
+<!doctype html><html lang=en><head><meta charset=UTF-8><meta content="width=device-width,initial-scale=1.0" name=viewport><meta content="index, follow" name=robots><link href="https://leokang28.github.io/ rss.xml" rel=alternate title=RSS type=application/rss+xml><title>KSLEO | Generic Types, Traits, and Lifetimes</title><link as=style href=https://leokang28.github.io/css/style.css rel=preload><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/reset-min.css rel=stylesheet><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/suCSS-min.css rel=stylesheet><link href=https://leokang28.github.io/css/style.css rel=stylesheet><link href=https://leokang28.github.io/css/custom.css rel=stylesheet><link href=https://leokang28.github.io/favicon.ico rel=icon type=image/x-icon><body><nav id=nav-bar><a class=site-title href=/>KSLEO</a><a href=/archive> /archive </a><a href=/tags> /tags </a><a href=/about> /about </a><div aria-label="Toggle theme" class=theme-toggle data-icon-base=https://leokang28.github.io/icons.svg data-icon-dark=#darkMode data-icon-light=#lightMode data-sound-src=https://leokang28.github.io/click.ogg id=theme-toggle role=button tabindex=0><svg class=icon><use id=theme-icon></use></svg></div></nav><main><article class=post><header class=post-header><time datetime=2021-10-05T14:38:34+08:00>Published on: <span class=accent-data>2021-10-05</span> </time><h1>Generic Types, Traits, and Lifetimes</h1></header><div class=toc-container><h2>Table of content</h2><ul><li><a href=https://leokang28.github.io/blog/08-generic-types-traits-and-lifetimes/#chapter-8-generic-types-traits-and-lifetimes>Chapter 8 - Generic Types, Traits, and Lifetimes</a> <ul><li><a href=https://leokang28.github.io/blog/08-generic-types-traits-and-lifetimes/#chou-xiang-han-shu-shan-chu-zhong-fu-dai-ma>抽象函数删除重复代码</a><li><a href=https://leokang28.github.io/blog/08-generic-types-traits-and-lifetimes/#section-1-fan-xing>Section 1 - 泛型</a><li><a href=https://leokang28.github.io/blog/08-generic-types-traits-and-lifetimes/#section-2-traits-defining-shared-behavior>Section 2 - Traits: Defining Shared Behavior</a><li><a href=https://leokang28.github.io/blog/08-generic-types-traits-and-lifetimes/#section-3-yong-lifetimes-yan-zheng-yin-yong>Section 3 - 用 Lifetimes 验证引用</a><li><a href=https://leokang28.github.io/blog/08-generic-types-traits-and-lifetimes/#section-4-generic-type-parameters-trait-bounds-and-lifetimes-together>Section 4 - Generic Type Parameters, Trait Bounds, and Lifetimes Together</a></ul></ul></div><div class=post-content><h1 id=chapter-8-generic-types-traits-and-lifetimes>Chapter 8 - Generic Types, Traits, and Lifetimes</h1><p>每种语言都有针对概念抽象的有效工具。Rust 中的工具之一是<em>generic（泛型）</em>。泛型是对类型或其他属性的抽象。在编码时，我们可以专注于表达泛型的行为或者与其他泛型之间的关系，而不用在意它在运行时代表的是什么类型的数据。函数也可以接收一些泛型参数而不是具体类型的参数。<h3 id=chou-xiang-han-shu-shan-chu-zhong-fu-dai-ma>抽象函数删除重复代码</h3><p>在学习泛型之前，我们先看一下如何通过函数抽象来解决代码重复的问题，然后我们会将泛型参数再加入进来。<p>先看一个寻找数组中最大数的示例。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let mut largest = number_list[0];
+
+    for number in number_list {
+        if number > largest {
+            largest = number;
+        }
+    }
+
+    println!("The largest number is {}", largest);
+}
+</code></pre><p>如果我们要寻找另外一个数组中的最大数，可以重复这段代码。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let mut largest = number_list[0];
+
+    for number in number_list {
+        if number > largest {
+            largest = number;
+        }
+    }
+
+    println!("The largest number is {}", largest);
+
+    let number_list = vec![102, 34, 6000, 89, 54, 2, 43, 8];
+
+    let mut largest = number_list[0];
+
+    for number in number_list {
+        if number > largest {
+            largest = number;
+        }
+    }
+
+    println!("The largest number is {}", largest);
+}
+</code></pre><p>可以看出除了数组中的数据不同，其他地方的逻辑完全是一样的。这样写代码虽然可以得出正确的结果，但是显得太过啰嗦而且容易出错。如果我们要修改其中的逻辑，比如改成寻找最小的数字，那么就得将所有重复的代码都改一遍。<p>为了去除重复代码，我们可以通过抽象一个函数，把不变的逻辑部分封装起来，可变的部分（数组）通过参数传递。这让我们的代码更加简洁，表意清晰也易于维护。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn largest&LTT>(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+
+    let number_list = vec![102, 34, 6000, 89, 54, 2, 43, 8];
+
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+}
+</code></pre><p>这个函数目前还不能编译通过，因为还需要用到一些之后会讲到的内容。<h2 id=section-1-fan-xing>Section 1 - 泛型</h2><p>泛型即通用类型，是在运行时才确定具体运算类型的技术。通过泛型声明函数和结构体，在调用时可以使用多种数据类型。首先看看如何通过泛型声明函数、结构体、枚举和方法等，之后再讨论一下泛型对于性能的影响。<h3 id=han-shu-sheng-ming>函数声明</h3><p>使用泛型声明函数时，我们使用泛型变量来替代参数和返回值的数据类型。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn largest_i32(list: &[i32]) -> i32 {
+    let mut largest = list[0];
+
+    for &item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn largest_char(list: &[char]) -> char {
+    let mut largest = list[0];
+
+    for &item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let result = largest_i32(&number_list);
+    println!("The largest number is {}", result);
+
+    let char_list = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest_char(&char_list);
+    println!("The largest char is {}", result);
+}
+</code></pre><p>上面分别有两个函数<code>largest_i32</code>和<code>largest_char</code>，它们接收不同的数据类型，但是内部所做的事是一样的逻辑。所以这两个函数可以通过泛型抽象成一个函数。<p>在函数中将类型参数化，需要对类型参数命名，就像对普通参数命名那样。可以用一个标识符来表示类型参数，习惯上我们会用<code>T</code>来表示，因为 T 是 type 的缩写。<p>在函数体中使用参数时，需要先在函数声明中对参数命名，好让编译器知道这个名称的含义是什么。同样的，当我们在函数声明中使用类型参数前，需要对其进行命名。类型参数需要用<code><></code>包起来，并且置于函数名和参数列表之间。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn largest&LTT>(list: &[T]) -> T {
+</code></pre><p>这个声明的含义是，<code>largest</code>函数接收一个泛型<code>T</code>，参数<code>list</code>是泛型<code>T</code>的切片，函数返回一个<code>T</code>类型的值。<p>接下来将<code>largest_i32</code>和<code>largest_char</code>函数通过泛型抽象为一个函数。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn largest&LTT>(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+
+    let char_list = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest(&char_list);
+    println!("The largest char is {}", result);
+}
+</code></pre><p>此时代码编译会提示一个错误<blockquote><p>error[E0369]: binary operation <code>></code> cannot be applied to type <code>T</code></blockquote><p>这里的出现错误的原因是，<code>></code>操作符不能在所有可能的数据类型上运算。为了进行比较运算，标准库提供了<code>std::cmp::PartialOrd</code>trait，类型实现它就可以获得进行比较运算的能力。这个在后续章节中会介绍到。<h3 id=jie-gou-ti-sheng-ming>结构体声明</h3><p>我们也可以使用泛型对结构体的字段进行声明。跟函数声明没什么不同。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>struct Point&LTT> {
+    x: T,
+    y: T,
+}
+
+fn main() {
+    let integer = Point { x: 5, y: 10 };
+    let float = Point { x: 1.0, y: 4.0 };
+}
+</code></pre><p>可以使用多个泛型参数来代表多种不同的类型。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>struct Point&LTT, U> {
+    x: T,
+    y: U,
+}
+
+fn main() {
+    let integer = Point { x: 5, y: 10.0 };
+    let float = Point { x: 1.0, y: 4 };
+}
+</code></pre><p>但是泛型参数的数量不宜过多，否则代码可读性会变差。当你需要使用到多个泛型变量时，说明你的代码需要重构到更细颗粒度。<h3 id=mei-ju-sheng-ming>枚举声明</h3><p>跟结构体声明一样，没有什么特别。比如之前多次使用到的<code>Option&LTT></code>和<code>Result&LTT, E></code>枚举。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>enum Option&LTT> {
+    Some(T),
+    None,
+}
+
+enum Result&LTT, E> {
+    Ok(T),
+    Err(E),
+}
+</code></pre><p>当你的代码出现多个相似的结构体和枚举，这些结构体和枚举仅仅只有数据类型不同时，就可以使用泛型对其进行抽象。<h3 id=fang-fa-sheng-ming>方法声明</h3><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>struct Point&LTT> {
+    x: T,
+    y: T,
+}
+
+impl&LTT> Point&LTT> {
+    fn x(&self) -> &T {
+        &self.x
+    }
+}
+
+fn main() {
+    let p = Point { x: 5, y: 10 };
+
+    println!("p.x = {}", p.x());
+}
+</code></pre><p>泛型参数<code>T</code>被置于<code>impl</code>关键字之后，方法名之后的泛型参数就可以省略不写。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl Point&LTf32> {
+    fn distance_from_origin(&self) -> f32 {
+        (self.x.powi(2) + self.y.powi(2)).sqrt()
+    }
+}
+</code></pre><p>这段代码的含义是，<code>Point&LTf32></code>上实现了一个方法<code>distance_from_origin</code>，对于泛型<code>Point&LTT></code>，当<code>T</code>是<code>f32</code>以外的类型时，则它不具有<code>distance_from_origin</code>方法。<p>结构体的泛型参数不一定会被方法定义时全部使用。可以在方法上指定一些其他的泛型参数，这些泛型参数仅仅在该方法上生效。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>struct Point&LTT, U> {
+    x: T,
+    y: U,
+}
+
+impl&LTT, U> Point&LTT, U> {
+    fn mixup&LTV, W>(self, other: Point&LTV, W>) -> Point&LTT, W> {
+        Point {
+            x: self.x,
+            y: other.y,
+        }
+    }
+}
+
+fn main() {
+    let p1 = Point { x: 5, y: 10.4 };
+    let p2 = Point { x: "Hello", y: 'c' };
+
+    let p3 = p1.mixup(p2);
+
+    println!("p3.x = {}, p3.y = {}", p3.x, p3.y);
+}
+</code></pre><h3 id=shi-yong-fan-xing-de-dai-ma-xing-neng>使用泛型的代码性能</h3><p>你可能会怀疑使用泛型会在运行时有一定的性能损耗。但是 Rust 在中使用泛型和特定的数据类型，在性能上没有任何区别。<p>Rust 通过在编译阶段对使用了泛型的代码执行<em>monomorphization</em>来完成性能优化。<em>monomorphization</em>是在编译阶段将泛型替换成具体数据类型的进程。在这个进程中编译器执行与创建泛型函数相反的操作，编译器查看所有调用了泛型声明的代码，并且生成对应的具体数据类型的代码。<p>我们通过一个例子来看看它的工作原理<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let integer = Some(5);
+let float = Some(5.0);
+</code></pre><p>当 Rust 编译这段代码，它会执行 monomorphization。编译器发现有两处代码调用了<code>Option&LTT></code>枚举的实体，编译器会针对这两处代码的类型分别生成对应的<code>Option</code>枚举。可以看成是抽象代码的一个逆操作<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>enum Option_i32 {
+    Some(i32),
+    None,
+}
+
+enum Option_f64 {
+    Some(f64),
+    None,
+}
+
+fn main() {
+    let integer = Option_i32::Some(5);
+    let float = Option_f64::Some(5.0);
+}
+</code></pre><p>由于 Rust 在编译阶段生成了相应的代码，因此在运行时就没有性能损耗了。<h2 id=section-2-traits-defining-shared-behavior>Section 2 - Traits: Defining Shared Behavior</h2><p><em>trait</em>告诉编译器特定的类型下具有什么功能，并且是否对外暴露。<blockquote><p>trait 与其他类型的<code>interface</code>概念类似，但不完全相同。</blockquote><h3 id=ding-yi-trait>定义 Trait</h3><p>类型的行为取决于我们能在该类型上调用的方法。如果多种不同类型都可以调用同一个方法，那么它们就具有相同的行为。trait 就是将这些相同方法组织在一起，定义一个行为的集合。<p>例如，有一些结构体能够存储一些类型和数量的文本，<code>NewsArticle</code>可以存储一个新闻内容；<code>Tweet</code>可以存储至多 280 个字符的文本内容，和标识它是新推文、转推还是回复其他推文的一些元数据。<p>我们想做一个媒体聚合库，用来展示<code>NewsArticle</code>或者<code>Tweet</code>实例的摘要内容。因此，这两种类型中都必须要有摘要数据，然后通过调用<code>summarize</code>方法来获取实例上的摘要数据。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub trait Summary {
+    fn summarize(&self) -> String;
+}
+</code></pre><p>这里用<code>trait</code>关键字定义了一个 trait。在 trait 内部，声明了一个方法，实现这个 trait 的类型可以调用这个方法。<p>在方法声明后，没有方法体，而是用分号结束。任何实现了这个 trait 的类型都必须自己实现这个方法的方法体。编译器会强制限定类型中实现的方法和 trait 中的方法声明是完全一致的。<p>trait 可以声明多个方法，每个方法占一行并以分号结束。<h3 id=lei-xing-shi-xian-trait>类型实现 trait</h3><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub struct NewsArticle {
+    pub headline: String,
+    pub location: String,
+    pub author: String,
+    pub content: String,
+}
+
+impl Summary for NewsArticle {
+    fn summarize(&self) -> String {
+        format!("{}, by {} ({})", self.headline, self.author, self.location)
+    }
+}
+
+pub struct Tweet {
+    pub username: String,
+    pub content: String,
+    pub reply: bool,
+    pub retweet: bool,
+}
+
+impl Summary for Tweet {
+    fn summarize(&self) -> String {
+        format!("{}: {}", self.username, self.content)
+    }
+}
+</code></pre><p>在类型上实现 trait 和普通的方法扩展类似。不同之处在于，在<code>impl</code>之后需要加上 trait 名称，然后在加上<code>for</code>关键字，最后是类型名称。在<code>impl</code>代码块里有和 trait 一样的方法声明，但是此时需要实现方法体。<p>在实现 trait 后，就可以在<code>NewsArticle</code>和<code>Tweet</code>类型的实例上调用实现的方法了，调用方式和普通的方法一样。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let tweet = Tweet {
+    username: String::from("horse_ebooks"),
+    content: String::from(
+        "of course, as you probably already know, people",
+    ),
+    reply: false,
+    retweet: false,
+};
+
+println!("1 new tweet: {}", tweet.summarize());
+</code></pre><p>注意由于我们所有代码写在一个文件中，因此我们可以直接使用，当其他人实现这个 trait 时，则需要通过之前章节讲的模块规则，把 trait 先引入然后才能使用。<p>trait 实现的一条限制是，当被实现的 trait 或者要实现的类型是我们 crate 的本地 trait 或类型时，才可以进行实现。例如，可以在<code>Tweet</code>上实现标准库的<code>Display</code>trait，因为<code>Tweet</code>是我们的本地类型；也可以在<code>Vec&LTT></code>上实现<code>Summary</code>trait，因为<code>Summary</code>trait 是我们的本地 trait。<p>但是我们不能在外部类型上实现外部 trait，例如在<code>Vec&LTT></code>上实现<code>Display</code>。这个限制是程序属性之一称之为<em>连贯性（coherence）</em>，更准确的说应该称之为<em>孤儿规则（orphan rule）</em>。这条规则确保别人不能修改你的代码，反之亦然。如果没有这条规则，那么两个 crate 可以同时给同一个类型实现同一个 trait，这样编译器就不知道要调用哪个实现了。<h3 id=mo-ren-shi-xian>默认实现</h3><p>有时在定义 trait 时，对它下面的方法实现默认的逻辑。之后，在我们实现 trait 时，可以选择保留或者覆盖默认实现。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub trait Summary {
+    fn summarize(&self) -> String {
+        String::from("(Read more...)")
+    }
+}
+</code></pre><p>在不覆盖默认实现时，<code>impl</code>后面跟一个空的 block 就好。trait 进行方法的默认逻辑编写，不会影响我们实现该 trait 的代码，因为覆盖和实现 trait 在语法上都是一致的。<p>默认实现的方法中，可以调用 trait 中的其他方法，就算被调用的方法没有默认实现。通过这种方式，trait 可以提供很多有用的功能，而我们只需要实现其中一部分代码。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub trait Summary {
+    fn summarize_author(&self) -> String;
+
+    fn summarize(&self) -> String {
+        format!("(Read more from {}...)", self.summarize_author())
+    }
+}
+</code></pre><p>要使用<code>summarize</code>方法，需要先实现它调用的<code>summarize_author</code>方法。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl Summary for Tweet {
+    fn summarize_author(&self) -> String {
+        format!("@{}", self.username)
+    }
+}
+
+let tweet = Tweet {
+    username: String::from("horse_ebooks"),
+    content: String::from(
+        "of course, as you probably already know, people",
+    ),
+    reply: false,
+    retweet: false,
+};
+
+println!("1 new tweet: {}", tweet.summarize());
+
+// output: 1 new tweet: (Read more from @horse_ebooks...)
+</code></pre><p>覆盖实现的方法是不可能调用同一个默认方法的。<h3 id=trait-zuo-wei-can-shu>Trait 作为参数</h3><p>通过<code>impl Trait</code>语法将 trait 作为参数。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub fn notify(item: &impl Summary) {
+    println!("Breaking news! {}", item.summarize());
+}
+</code></pre><p>我们在参数<code>item</code>之后没有指定数据类型，而是用<code>impl</code>关键字和 trait 名称。这样这个参数就可以接收任何实现了这个 trait 的类型。在<code>notify</code>函数体中，可以通过<code>item</code>调用所有<code>Summary</code>上被<code>item</code>的类型实现了的方法或者默认方法。<h4 id=trait-bound-syntax>Trait Bound Syntax</h4><p><code>impl Trait</code>方法是另外一种形式的语法糖，该形式成为<em>trait 绑定（trait bound）</em>。它的代码如下：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub fn notify&LTT: Summary>(item: &T) {
+    println!("Breaking news! {}", item.summarize());
+}
+</code></pre><p>这种形式跟<code>impl Trait</code>语法等价，但是比较冗长。<code>impl Trait</code>语法使用更方便，并且在大多数简单场景下代码更简洁。trait 绑定能解决更复杂的场景。比如两个参数的情况：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub fn notify(item1: &impl Summary, item2: &impl Summary) {
+</code></pre><p>如果我们想要<code>item1</code>和<code>item2</code>的类型是不同的，那么<code>impl Trait</code>方法更合适。但是如果需要强制两个参数的类型是一致的，那么只有 trait 绑定能实现。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub fn notify&LTT: Summary>(item: &T) {
+</code></pre><p>泛型参数<code>T</code>保证<code>item1</code>和<code>item2</code>的类型必须是一致的。<h4 id=tong-guo-yu-fa-sheng-ming-duo-ge-trait-bound>通过<code>+</code>语法声明多个 trait bound</h4><p>我们可以指定多个 trait bound。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub fn notify(item: &(impl Summary + Display)) {
+</code></pre><p><code>+</code>语法也适用于 trait bound<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub fn notify&LTT: Summary + DisPlay>(item: &T) {
+</code></pre><h4 id=shi-yong-wheretiao-jian-jian-hua-trait-bound>使用<code>where</code>条件简化 trait bound</h4><p>使用太多 trait bound 也有缺点。每个泛型参数都有它自己的 trait bound，因此多个泛型参数的函数在泛型参数列表和参数列表中会包含很多 trait bound 信息，让函数声明变得冗长难以理解。因此，在函数声明后引入<code>where</code>条件可以做到简化的作用。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>// before
+fn some_function&LTT: Display + Clone, U: Clone + Debug>(t: &T, u: &U) -> i32 {
+// with where
+fn some_function&LTT, U>(t: &T, u: &U) -> i32
+    where T: Display + Clone,
+          U: Clone + Debug
+{
+</code></pre><h3 id=returning-types-that-implement-traits>Returning Types that Implement Traits</h3><p><code>impl Trait</code>语法同样可以用在函数声明中的返回类型部分。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn returns_summarizable() -> impl Summary {
+    Tweet {
+        username: String::from("horse_ebooks"),
+        content: String::from(
+            "of course, as you probably already know, people",
+        ),
+        reply: false,
+        retweet: false,
+    }
+}
+</code></pre><p>返回实现了特定 trait 类型的功能在闭包和迭代器的场景下非常有用。闭包和迭代器创建的类型只有编译器知道，或者列举这些类型会非常长。<code>impl Trait</code>语法让你只需要指定返回一个实现了<code>Iterator</code>trait 的类型就好，不用写过长的类型代码。<p>但是，<code>impl Trait</code>语法用于返回类型时，函数只能返回一种类型。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn returns_summarizable(switch: bool) -> impl Summary {
+    if switch {
+        NewsArticle {
+            headline: String::from(
+                "Penguins win the Stanley Cup Championship!",
+            ),
+            location: String::from("Pittsburgh, PA, USA"),
+            author: String::from("Iceburgh"),
+            content: String::from(
+                "The Pittsburgh Penguins once again are the best \
+                 hockey team in the NHL.",
+            ),
+        }
+    } else {
+        Tweet {
+            username: String::from("horse_ebooks"),
+            content: String::from(
+                "of course, as you probably already know, people",
+            ),
+            reply: false,
+            retweet: false,
+        }
+    }
+}
+</code></pre><p>这个函数返回<code>NewsArticle</code>和<code>Tweet</code>两种类型，由于被<code>impl Trait</code>语法在编译器中的实现所限制，这个函数是不会编译通过的。在后面的章节会介绍到如何实现这种功能。<h3 id=xiu-gai-largesthan-shu>修改<code>largest</code>函数</h3><p>现在我们可以修改本章开头的示例函数了。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn largest&LTT: PartialOrd + Copy>(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+
+    let char_list = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest(&char_list);
+    println!("The largest char is {}", result);
+}
+</code></pre><p><code>PartialOrd</code>trait 限制参数类型要有<code>></code>操作符计算的能力，<code>Copy</code>trait 限制参数类型只能是<em>stack-only</em>的，或者可以用<code>Clone</code>trait 替代。但是<code>clone</code>方法会在 heap 上分配内存，如果数据量很大的话会有性能损耗。另外一种解决方案是通过返回引用<code>&T</code>而不是<code>T</code>。则可以省略<code>Copy</code>trait。<h3 id=using-trait-bounds-to-conditionally-implement-methods>Using Trait Bounds to Conditionally Implement Methods</h3><p>将 Trait bound 用于<code>impl</code>可以让我们有条件的实现 trait 中的方法。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::fmt::Display;
+
+struct Pair&LTT> {
+    x: T,
+    y: T,
+}
+
+impl&LTT> Pair&LTT> {
+    fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
+}
+
+impl&LTT: Display + PartialOrd> Pair&LTT> {
+    fn cmp_display(&self) {
+        if self.x >= self.y {
+            println!("The largest member is x = {}", self.x);
+        } else {
+            println!("The largest member is y = {}", self.y);
+        }
+    }
+}
+</code></pre><p><code>Pair&LTT></code>上的 new 方法任何类型都会被实现，而<code>cmp_display</code>方法只有<code>T</code>类型实现了<code>Display</code>和<code>partialOrd</code>trait 时才会被实现。<p>这个限制条件也可以用于给类型实现 trait 时。为某些满足 trait bound 条件的类型实现特定的 trait 在 Rust 中称为<em>blanket implementations</em>，这个做法被广泛的应用于 Rust 标准库中。例如，标准库实现了为所有实现了<code>Display</code>trait 的类型实现了<code>ToString</code>trait。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl&LTT: Display> ToString for T {
+</code></pre><p>Trait 和 trait bound 可以让我们通过泛型参数抽象代码，同时可以向编译器指明我们需要泛型类型具有什么样的功能。然后编译器就能根据我们提供的信息去检查我们具体使用的类型有没有实现这些功能。在动态类型语言中，如果我们调用一个类型上没有定义的方法，那么会在运行时出现错误。Rust 在编译阶段就解决了这些错误，它强制我们在代码运行之前解决这些潜在错误，因此我们也不需要再在运行时代码中检查方法是否存在。这样既提升了性能，又没有损失泛型的动态性。<h2 id=section-3-yong-lifetimes-yan-zheng-yin-yong>Section 3 - 用 Lifetimes 验证引用</h2><p>我们在之前的<a href=/Rust/02-ownership.html#section-2-references-and-borrowing>章节</a>中没有讲到的一个概念是，Rust 中的引用都有<em>生命周期（lifetimes）</em>，是引用有效的作用域范围。大多数情况下，生命周期是隐式和被推断的，就像数据类型是被推断的一样。当类型有多种可能时，我们就必须指定类型。同样的，当生命周期通过集中不同的方式关联时，我们也必须指定。Rust 要求我们使用泛型生命周期参数指明关联方式来确保真正的引用在运行时是绝对有效的。<p>生命周期的概念与其他语言中的工具有些不同，可以说是 Rust 最独特的功能。这节不会介绍生命周期的全部内容，但是会对你有可能遇到的多种生命周期语法作讨论，好熟悉生命周期的概念。<h3 id=fang-zhi-xuan-kong-zhi-zhen>防止悬空指针</h3><p>生命周期的主要目标是防止出现悬空指针。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>{
+    let r;
+
+    {
+        let x = 5;
+        r = &x;
+    }
+
+    println!("r: {}", r);
+    // error[E0597]: `x` does not live long enough
+}
+</code></pre><p>假如我们运行这段代码，编译器会报一个错误。因为内部作用域结束时，x 和它的引用也被销毁了。如果这个代码能够运行，那么 r 将指向一块已经被释放的内存，之后代码的运行肯定不符合我们的预期。Rust 通过 borrow checker 判断代码是否有效。<h3 id=the-borrow-checker>The Borrow Checker</h3><p>Rust 编译器用<em>borrow checker</em>来比较作用域，判断引用是否有效。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>{
+    let r;                // ---------+-- 'a
+                          //          |
+    {                     //          |
+        let x = 5;        // -+-- 'b  |
+        r = &x;           //  |       |
+    }                     // -+       |
+                          //          |
+    println!("r: {}", r); //          |
+}                         // ---------+
+</code></pre><p>用<code>'a</code>代表 r 的生命周期，<code>'b</code>代表 x 的生命周期。可以看到，内部的<code>'b</code>生命周期是要比外部的<code>'a</code>生命周期小的。在编译阶段，编译器会对比这两个变量的生命周期大小，它会发现<code>r</code>的生命周期更大，但是它指向了一个生命周期更小的内存区域，所以编译器会报错。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>{
+    let x = 5;            // ----------+-- 'b
+                          //           |
+    let r = &x;           // --+-- 'a  |
+                          //   |       |
+    println!("r: {}", r); //   |       |
+                          // --+       |
+}
+</code></pre><p>这里<code>x</code>的生命周期<code>'b</code>比<code>r</code>的生命周期<code>'a</code>大，那么<code>r</code>可以指向<code>x</code>，因为当<code>x</code>有效时，它的引用<code>r</code>也一定有效。<h3 id=han-shu-de-fan-xing-sheng-ming-zhou-qi>函数的泛型生命周期</h3><p>写一个比较两个字符串长度的函数<code>longest</code>。接收两个<code>&str</code>参数，返回一个<code>&str</code>数据。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn longest(x: &str, y: &str) -> &str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+
+fn main() {
+    let string1 = String::from("abcd");
+    let string2 = "xyz";
+
+    let result = longest(string1.as_str(), string2);
+    println!("The longest string is {}", result);
+}
+
+// error[E0106]: missing lifetime specifier
+
+</code></pre><p>上面<code>longest</code>函数的实现，编译阶段会报错。返回类型需要一个泛型生命周期参数，因为 Rust 不知道返回的引用指向<code>x</code>还是<code>y</code>。事实上因为<code>if</code>表达式，我们自己也不知道会指向哪一个。为了解决这个错误，需要定义泛型生命周期参数来确定引用之间的关系，然后<code>borrow checker</code>才能进行分析。<h3 id=sheng-ming-zhou-qi-sheng-ming-yu-fa>生命周期声明语法</h3><p>生命周期声明不会改变任何引用真正的生命周期。就像函数可以接收泛型类型参数来接收任何数据类型，通过定义泛型生命周期，函数也可以接收任何生命周期的引用。生命周期声明只描述了引用之间的生命周期关系，对运行时真正的生命周期没有影响。<p>泛型生命周期的定义语法比较奇怪：生命周期参数的名称前面用一个单引号<code>'</code>开头，名称都是小写字母，并且像泛型参数一样名称长度很短。最常用的名称是<code>'a</code>。把生命周期参数放在引用的<code>&</code>符号后面，用空格将类型隔开。<pre><code>&i32        // a reference
+&'a i32     // a reference with an explicit lifetime
+&'a mut i32 // a mutable reference with an explicit lifetime
+</code></pre><p>单独的生命周期声明没什么意义，因为它的作用是告知编译器引用之间的生命周期关系。<h3 id=zai-han-shu-sheng-ming-zhong-shi-yong-sheng-ming-zhou-qi-sheng-ming>在函数声明中使用生命周期声明</h3><p>现在开始在<code>longest</code>函数上下文中定义生命周期。泛型生命周期参数需要像泛型类型参数一样，包在<code><></code>中。生命周期参数的声明中有一条限制是，所有的参数和返回值必须要有一致的生命周期参数。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn longest<'a>(x:&'a str, y:&'a str) -> &'a str {
+    if x.len > y.len {
+        x
+    } else {
+        y
+    }
+}
+</code></pre><p><code>longest</code>函数接收两个参数，且生命周期长度至少是<code>'a</code>，且返回值的生命周期也是<code>'a</code>。意味着函数返回值的生命周期和参数中生命周期较小的那个相等。记住，当我们定义声明生命周期参数时，对参数和返回值真正的生命周期没有任何影响。它的作用是我们指明 borrow checker 需要拒绝不符合这些限制的参数。函数不需要知道参数的确切生命周期，只需要把函数声明中符合条件的最小生命周期替换为<code>'a</code>。<p>声明生命周期只需要在函数签名中，Rust 可以自动分析代码。然而当函数有外部代码或者引用的时候，Rust 编译器就不能靠自己分析生命周期了，所以需要手动指定。<p><code>'a</code>泛型生命周期会等于参数<code>x</code>和<code>y</code>中生命周期较小的那一个。因为我们指定返回值的生命周期也是<code>'a</code>，所以返回值的生命周期也和<code>x</code>和<code>y</code>中较小的那一个相等。<p>我们通过一个例子来看当参数真正的生命周期不相等时，生命周期参数如何对函数做限制。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let string1 = String::from("long string is long");
+
+    {
+        let string2 = String::from("xyz");
+        let result = longest(string1.as_str(), string2.as_str());
+        println!("The longest string is {}", result);
+    }
+}
+
+// output: The longest string is long string is long
+</code></pre><p><code>string1</code>的生命周期是外部作用域（main 函数）。<code>string2</code>的生命周期是内部作用域（代码块）。<code>result</code>引用某个玩意儿，生命周期是内部作用域。这个代码能够正常执行并输出。<p>接下来，把<code>result</code>的定义和<code>println!</code>移到外部作用域。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let string1 = String::from("long string is long");
+    let result;
+
+    {
+        let string2 = String::from("xyz");
+        result = longest(string1.as_str(), string2.as_str());
+    }
+    println!("The longest string is {}", result);
+}
+
+// error[E0597]: `string2` does not live long enough
+</code></pre><p>这时候编译会报错。之前提到返回值的生命周期等于参数生命周期较小的那个，这里也就是<code>string2</code>。但是当<code>result</code>的引用被使用时，<code>string2</code>的生命周期已经结束，其内存已经被释放，所以<code>result</code>是一个悬空指针，Rust 编译器不会让这种情况通过编译。<p>这个错误表示，<code>result</code>要在<code>println!</code>宏调用它的时候有效，则<code>string2</code>就必须在外部作用域结束前有效。<h3 id=thinking-in-terms-of-lifetimes>Thinking in Terms of Lifetimes</h3><p>定义函数生命周期参数的方式取决于函数的具体功能。如果你的函数任何情况下都返回第一个参数，那么就不需要对第二个参数进行生命周期定义。因为第二个参数与第一个参数或者返回值没有任何生命周期关系。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn longest<'a>(x: &'a str, y: &str) -> &'a str {
+    x
+}
+</code></pre><p>当函数返回一个引用时，它的生命周期要和参数列表其中一个参数的生命周期匹配。如果函数的返回值没有指向任何参数，而是指向一个函数内部创建的值，那么这个返回值在函数结束后会成为一个悬空指针。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn longest<'a>(x: &str, y: &str) -> &'a str {
+    let result = String::from("really long string");
+    result.as_str()
+}
+
+// error[E0515]: cannot return value referencing local variable `result`
+</code></pre><p>即使我们定义了泛型生命周期参数，编译器还是不会通过这个代码，因为返回值本质上和参数没有任何关联。<p>总之，生命周期语法需要函数参数和返回值之间有所关联。只有这样 Rust 编译器才有足够的判断依据来允许执行内存安全的操作和禁止任何可能创建悬空指针的操作。<h3 id=lifetime-annotations-in-struct-definitions>Lifetime Annotations in Struct Definitions</h3><p>至今我们定义的结构体字段都是有所有权的，结构体字段也可以包含引用。当结构体字段包含引用的时候，需要对每个引用类型的字段定义生命周期。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>struct ImportantExcerpt<'a> {
+    part: &'a str,
+}
+
+fn main() {
+    let novel = String::from("Call me Ishmael. Some years ago...");
+    let first_sentence = novel.split('.').next().expect("Could not find a '.'");
+    let i = ImportantExcerpt {
+        part: first_sentence,
+    };
+}
+</code></pre><p>这个结构体有一个字段<code>part</code>，存储一个<code>&str</code>类型的数据。泛型生命周期参数用<code><></code>包起来，放在结构体名称和结构体代码块之间。这个定义意味着，<code>ImportantExcerpt</code>类型的实例，其生命周期不超过<code>part</code>字段引用的生命周期。<p><code>main</code>方法创建了一个<code>ImportantExcerpt</code>实例，并且将<code>novel</code>变量的部分引用赋值给实例的字段。<code>novel</code>在实例创建之前初始化，而且<code>novel</code>在作用域执行结束，实例被释放后才会被释放，因此实例中的引用是有效的。<h3 id=lifetime-elision>Lifetime Elision</h3><p>现在了解了所有的引用都有生命周期，而且你需要为使用了引用的结构体和函数声明生命周期参数。之前我们写过一个获取句子中第一个单词的<a href=https://leokang28.github.io/blog/08-generic-types-traits-and-lifetimes/Rust/2-ownership.html#section-3-the-slice-type>方法</a>，这个函数没有生命周期声明，而且编译通过了。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn first_word(s: &str) -> &str {
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return &s[0..i];
+        }
+    }
+
+    &s[..]
+}
+</code></pre><p>这个函数没有生命周期声明但是编译通过是因为一些历史原因：早起的 Rust 版本（&LT1.0）中，这个代码是不能编译通过的，因为要求所有引用都声明声明周期。在那个版本下，这个函数的签名是<blockquote><p><code>fn first_word<'a>(s: &'a str) -> &'a str {</code></blockquote><p>在编写了大量的 Rust 代码之后，Rust 核心团队发现，Rust 程序员在一些特定场景下需要一直重复同样的生命周期声明。这些场景是可预测而且遵循特定的模式的。维护者将这些模式加入编译器，这样编译器就能对这些场景进行生命周期推断，而不需要程序员显式指定了。<p>今后可能还会出现其他特定的模式，然后被加入到编译器中。以后需要指定生命周期的场景可能会越来越少。<p>这些用来分析引用生命周期，被编写进 Rust 编译器的模式被称为<em>生命周期省略规则（lifetime elision rules）</em>。这不是给程序员指定的规则，而是编译器的一个规则集合，编译器通过这个集合判断如果你的代码场景符合其中的某个模式，那么就不用显式声明生命周期。<p>函数参数的生命周期称为<em>input lifetimes</em>，函数返回值的生命周期称为<em>output lifetimes</em><p>当没有指定生命周期时，编译器通过三个规则来判断引用的生命周期。规则一适用于<em>input lifetimes</em>，规则二三适用于<em>output lifetimes</em>。如果通过三条规则编译器都不能确定引用的生命周期，则会报错退出。这三条规则同时适用于<code>fn</code>声明和<code>impl</code>声明。<ul><li>规则一：每个引用参数都有它自己的生命周期。即，一个参数的函数可以获取到一个生命周期<code>fn foo<'a>(x: &'a i32)</code>，两个参数的函数获取到两个生命周期<code>fn foo<'a, 'b>(x: &'a i32, y: &'b i32)</code>。依此类推。<li>规则二：如果明确只有一个 input lifetime 参数，那么 output lifetime 跟它相同。<code>fn foo<'a>(x: &'a i32) -> &'a i32</code>。<li>规则三：如果有多个 input lifetime 参数，但是其中之一是<code>&self</code>或者<code>&mut self</code>，那么所有 output lifetimes 都跟<code>self</code>的生命周期相同。</ul><p>我们在编译器的角度看几个函数签名。<blockquote><p><code>fn first_word(s: &str) -> &str {</code></blockquote><p>首先应用规则一，每个参数都有自己的生命周期。<blockquote><p><code>fn first_word<'a>(s:&'a str) -> &str {</code></blockquote><p>接着规则二也符合：只有一个参，那么返回值的生命周期也确定了<blockquote><p><code>fn first_word<'a>(s:&'a str) -> &'a str {</code></blockquote><p>在看另外一个例子：<blockquote><p><code>fn longest(x: &str, y: &str) -> &str {</code></blockquote><p>首先规则一：<blockquote><p><code>fn longest<'a, 'b>(x: &'a str, y: &'b str) -> &str {</code></blockquote><p>接下来规则二不适用，因为有两个参数；规则三也不适用，因为它不是一个方法，没有<code>self</code>参数。三条规则结束，还没能确定返回值的生命周期，此时编译器报错退出。<h3 id=lifetime-annotations-in-method-definitions>Lifetime Annotations in Method Definitions</h3><p>当我们实现方法当时候声明其生命周期时，它的定义方式和泛型类型一样。我们在何处定义和使用生命周期参数取决于他们是否和方法的参数或者实例字段以及返回值相关。结构体字段的生命周期名称任何情况下都需要在<code>impl</code>关键字后声明和在结构体名称中使用，因为它是结构体声明的一部分。<p>在方法签名中，引用可能会跟实例字段的生命周期绑定，也可能是独立的。此外，<em>生命周期省略规则</em>通常使方法生命中不需要定义生命周期。<p>通过之前的<code>ImportantExcerpt</code>结构体来看一些例子。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl<'a> ImportantExcerpt<'a> {
+    fn level(&self) -> i32 {
+        3
+    }
+}
+</code></pre><p>在<code>impl</code>后声明生命周期参数，在结构体名称后使用是必须的。但是由于生命周期省略规则一，不需要在方法签名中声明生命周期。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl<'a> ImportantExcerpt<'a> {
+    fn announce_and_return_part(&self, announcement: &str) -> &str {
+        println!("Attention please: {}", announcement);
+        self.part
+    }
+}
+</code></pre><p>上面是一个符合生命周期省略规则三的例子。<h3 id=the-static-lifetime>The Static Lifetime</h3><p>一个需要说明的特殊生命周期是<code>static</code>，意思是引用在整个程序执行期间都有效。字符串字面量的生命周期都是<code>static</code>：<blockquote><p><code>let s: &'static str = "I have a static lifetime.";</code></blockquote><p>因为字符串字面量是直接写入可执行文件的，程序运行期间一直存在，所以它的生命周期是<code>static</code>。<p>可能在报错时你会看到编译器建议你使用<code>static</code>生命周期。但是这些问题可能是由于创建悬空指针或者生命周期不匹配造成的，首先应当解决真正的问题而不是无脑<code>static</code>。<h2 id=section-4-generic-type-parameters-trait-bounds-and-lifetimes-together>Section 4 - Generic Type Parameters, Trait Bounds, and Lifetimes Together</h2><p>让我们把这三个概念使用在一个函数定义中。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::fmt::Display;
+
+fn longest_with_an_announcement<'a, T>(
+    x: &'a str,
+    y: &'a str,
+    ann: T,
+) -> &'a str
+where
+    T: Display,
+{
+    println!("Announcement! {}", ann);
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+</code></pre></div><div class=post-tags><a class=tag href=/tags/rust>#Rust </a></div></article></main><footer><hr><div id=footer-container><p>Made using <a rel="noopener noreferrer" href=https://github.com/Speyll/anemone target=_blank>anemone</a> Zola theme</div></footer><script defer src=https://leokang28.github.io/js/script.js></script>

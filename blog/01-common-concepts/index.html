@@ -1,0 +1,141 @@
+<!doctype html><html lang=en><head><meta charset=UTF-8><meta content="width=device-width,initial-scale=1.0" name=viewport><meta content="index, follow" name=robots><link href="https://leokang28.github.io/ rss.xml" rel=alternate title=RSS type=application/rss+xml><title>KSLEO | Common Concepts</title><link as=style href=https://leokang28.github.io/css/style.css rel=preload><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/reset-min.css rel=stylesheet><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/suCSS-min.css rel=stylesheet><link href=https://leokang28.github.io/css/style.css rel=stylesheet><link href=https://leokang28.github.io/css/custom.css rel=stylesheet><link href=https://leokang28.github.io/favicon.ico rel=icon type=image/x-icon><body><nav id=nav-bar><a class=site-title href=/>KSLEO</a><a href=/archive> /archive </a><a href=/tags> /tags </a><a href=/about> /about </a><div aria-label="Toggle theme" class=theme-toggle data-icon-base=https://leokang28.github.io/icons.svg data-icon-dark=#darkMode data-icon-light=#lightMode data-sound-src=https://leokang28.github.io/click.ogg id=theme-toggle role=button tabindex=0><svg class=icon><use id=theme-icon></use></svg></div></nav><main><article class=post><header class=post-header><time datetime=2020-12-10T23:03:29+08:00>Published on: <span class=accent-data>2020-12-10</span> </time><h1>Common Concepts</h1></header><div class=toc-container><h2>Table of content</h2><ul><li><a href=https://leokang28.github.io/blog/01-common-concepts/#chapter-1-common-concepts>Chapter 1 - Common Concepts</a> <ul><li><a href=https://leokang28.github.io/blog/01-common-concepts/#section-1-variables-and-mutability>Section 1 - Variables and Mutability</a><li><a href=https://leokang28.github.io/blog/01-common-concepts/#section-2-data-types>Section 2 - Data Types</a><li><a href=https://leokang28.github.io/blog/01-common-concepts/#section-3-functions>Section 3 - Functions</a><li><a href=https://leokang28.github.io/blog/01-common-concepts/#section-4-comments>Section 4 - Comments</a><li><a href=https://leokang28.github.io/blog/01-common-concepts/#section-5-control-flow>Section 5 - Control Flow</a></ul></ul></div><div class=post-content><h1 id=chapter-1-common-concepts>Chapter 1 - Common Concepts</h1><h2 id=section-1-variables-and-mutability>Section 1 - Variables and Mutability</h2><h3 id=bian-liang-ding-yi>变量定义</h3><p>Rust 定义变量的方式<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let x = 10
+</code></pre><p>Rust 的变量默认是 Immutable，可通过<code>mut</code>关键字修改。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let x = 10
+x = 20 //error: cannot assign twice to immutable variable
+
+let mut x = 10
+x = 20 //success
+</code></pre><h3 id=immutable-yu-const-de-qu-bie>Immutable 与 const 的区别</h3><p>Rust 变量默认不可重复赋值，const 常量同样也不允许重复赋值，这二者的区别在于：<ul><li>变量用<code>let</code>关键字，常量用<code>const</code>关键字。<li>变量可以用<code>mut</code>关键字修饰，常量不行。<li>常量初始化要带数据类型声明，例如：</ul><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>const NUM:i32 = 10
+</code></pre><ul><li>常量可以在任何上下文中定义，变量不能在定义在全局上下文中。<li>常量大部分情况下只用于常量赋值表达式，而不会用于赋值函数运算结果等运行时计算的表达式。</ul><h3 id=bian-liang-fu-gai-shadows>变量覆盖（Shadows）</h3><p>let 关键字可重复声明同一变量名，后声明的会覆盖之前声明的。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let x = 5;
+
+let x = x + 1;
+
+println!("The value of x is: {}", x);
+
+let x = x * 2;
+
+println!("The value of x is: {}", x);
+
+// output
+// The value of x is: 6
+// The value of x is: 12
+</code></pre><p>之前提到，设置一个变量 mutable 可以用关键字<code>mut</code>，可以对其进行重复赋值。变量覆盖看起来功能相似，但是它在改变了变量值的同时，保持了 Rust 的 Immutable 特性，其安全性没有降低。另外，变量覆盖本质上是定义了一个新的变量，因此我们可以用同一个变量名但是使用不同的数据类型。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let x = 5;
+
+println!("{}", x);
+
+let x = "string";
+
+println!("{}", x);
+
+//output
+// 5
+// string
+</code></pre><h2 id=section-2-data-types>Section 2 - Data Types</h2><h3 id=zheng-xing-integer>整型（Integer）</h3><table><thead><tr><th style=text-align:left>Length<th style=text-align:left>Signed<th style=text-align:left>Unsigned<tbody><tr><td style=text-align:left>8-bit<td style=text-align:left>i8<td style=text-align:left>u8<tr><td style=text-align:left>16-bit<td style=text-align:left>i16<td style=text-align:left>u16<tr><td style=text-align:left>32-bit<td style=text-align:left>i32<td style=text-align:left>u32<tr><td style=text-align:left>64-bit<td style=text-align:left>i64<td style=text-align:left>u64<tr><td style=text-align:left>128-bit<td style=text-align:left>i128<td style=text-align:left>u128<tr><td style=text-align:left>arch<td style=text-align:left>isize<td style=text-align:left>usize</table><p>无符号整型范围：0 ~ $2^n - 1$，有符号整型范围：$-2^{n-1}$ ~ $2^{n-1} - 1$<h4 id=zheng-xing-zi-mian-liang>整型字面量</h4><table><thead><tr><th style=text-align:left>Number<th style=text-align:left>literals Example<tbody><tr><td style=text-align:left>Decimal<td style=text-align:left>98_222<tr><td style=text-align:left>Hex<td style=text-align:left>0xff<tr><td style=text-align:left>Octal<td style=text-align:left>0o77<tr><td style=text-align:left>Binary<td style=text-align:left>0b1111_0000<tr><td style=text-align:left>Byte<td style=text-align:left>(u8 only) b’A’</table><p>:::tip 溢出（Integer Overflow） 当发生整型溢出，debug 模式程序会报错退出，release 编译模式会将高位截断（<code>u8</code>256 -> 0）。 :::<h3 id=fu-dian-floating-point>浮点（Floating—Point）</h3><p>浮点数表示遵循 IEEE-754 标准，浮点数有两种基本类型<code>f32</code>单精度浮点和<code>f64</code>双精度浮点，Rust 默认是<code>f64</code>，因为在现代 cpu 中，<code>f64</code>的运算速度和<code>f32</code>相当，同时具有更高的精度。<h3 id=bu-er-boolean>布尔（Boolean）</h3><p>只有<code>true</code>和<code>false</code>两个值，大小为 1byte。<h3 id=zi-fu-character>字符（Character）</h3><p>用单引号表示 char 类型（双引号是 string），大小为 4byte，为 Unicode 编码。<h3 id=yuan-zu-tuple>元组（Tuple）</h3><p>元组是常用的将一组数字类型（浮点、整型）的数据组合的类型，不可动态扩容。解构元组时定义的变量要和元组的数据量对应，或者用<code>_</code>占位，也可以通过索引访问。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+// tuple声明
+let x = (1,2,3);
+// 解构
+let (a, b, c) = x;
+
+let (a, _, _) = x;
+let (_, b, _) = x;
+let (_, _, c) = x;
+
+let first = x.0;
+let second = x.1;
+let third = x.2;
+
+//let (a, b) = x; error
+}
+</code></pre><h3 id=shu-zu-array>数组（Array）</h3><p>数组中的元素类型必须一致，不可动态扩容。与 Vector 不同，Vector 是标准库提供的一种数据存储结构，支持动态扩容。<h5 id=shu-zu-ding-yi-fang-shi>数组定义方式</h5><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>// 编译器推断类型和数量
+let x = [1, 2, 3];
+// 指定类型和数量
+let x:[i32; 3] = [1, 2, 3];
+// 所有元素都是相同的
+let x = [3; 5];
+</code></pre><h4 id=shu-zu-fang-wen>数组访问</h4><p>通过下标的形式，不允许越界。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>x[0]
+
+x[5] //error bounds:
+</code></pre><h2 id=section-3-functions>Section 3 - Functions</h2><p>函数由<code>fn</code>关键字、函数名、参数列表（parameters）、返回类型、作用域块组成。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+println!("Hello, world!");
+
+another_function();
+}
+
+fn another_function() {
+println!("Another function.");
+}
+
+// output
+// Hello, world!
+// Another function.
+</code></pre><p>Rust 对声明顺序不敏感，调用的函数只要有声明就行。<h3 id=han-shu-can-shu>函数参数</h3><p>函数的参数列表是函数声明的一部分，参数列表多个参数用逗号分割。形参（parameters），实参（arguments）。函数参数列表（parameters）必须指明参数类型<h3 id=han-shu-ti>函数体</h3><p>函数体由表达式（expression）结尾的一系列语句（statement）组成。statement 表示执行某些操作，不会返回值；expression 会进行计算并返回值。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let x = (let y = 6);
+</code></pre><p>以上代码会报错，<code>let y = 6</code>是一个声明语句（statement），statement 是不能作为赋值语句的右值的，因为赋值语句的右值必须能返回值赋给左值。<p>函数调用和作用域块都是表达式。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>// function invoke
+let y = func();
+
+// block scope
+let y = {
+let x = 3;
+x + 1
+};
+</code></pre><p>注意 x + 1 后面没有分号，这也是表达式和语句的区别，语句都以分号结尾，而表达式不包含分号。表达式加分号会成为语句。<p>:::tip tip Rust 中有一个空类型<code>()</code>，所有语句和没有返回值的函数，Rust 会自动返回空类型。 :::<h3 id=han-shu-fan-hui-zhi>函数返回值</h3><p>函数返回类型定义在参数列表（parameters）之后。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn func() -> i32 {
+1
+}
+</code></pre><p>Rust 在函数体最后可以用表达式代替 return 关键字返回值（该表达式不能加分号，否则会变成语句，且该表达式只能位于函数体最后）。<h2 id=section-4-comments>Section 4 - Comments</h2><p>注释，对代码加以说明，起辅助作用，给人读的内容而不是机器。用<code>//</code>开头，不能跨行。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>// 一行注释
+let a = 10;
+</code></pre><h2 id=section-5-control-flow>Section 5 - Control Flow</h2><h3 id=if-tiao-jian-biao-da-shi>if 条件表达式</h3><p>由关键字<code>if</code>开始，后面紧跟一个条件表达式，该表达式返回值只能是<code>boolean</code>类型。之后跟一个作用域块，条件不匹配时使用<code>else</code>关键字，后面接一个作用域块。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let number = 3;
+
+if number < 5 {
+println!("condition was true");
+} else {
+println!("condition was false");
+}
+</code></pre><h4 id=duo-tiao-jian-shi-yong-else-if>多条件时用<code>else if</code></h4><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let number = 6;
+
+if number % 4 == 0 {
+println!("number is divisible by 4");
+} else if number % 3 == 0 {
+println!("number is divisible by 3");
+} else if number % 2 == 0 {
+println!("number is divisible by 2");
+} else {
+println!("number is not divisible by 4, 3, or 2");
+}
+</code></pre><h4 id=zai-letyu-ju-zhong-shi-yong-if-biao-da-shi>在<code>let</code>语句中使用 if 表达式</h4><p>由于 if 是一个表达式，所以它可以用于 let 语句的右值。这种情况下，if 表达式各条件分支返回的数据类型必须一致，这是因为在编译阶段 Rust 必须确定变量的类型，编译器不支持运行时动态确定变量类型，这样会使编译器更加复杂并且安全性降低。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let condition = true;
+let number = if condition { 5 } else { 6 };
+
+let number = if condition { 5 } else { "six" };
+// error if and else have incompatible types
+</code></pre><h3 id=xun-huan>循环</h3><p>Rust 有三种执行循环的方式，<code>loop</code>,<code>while</code>和<code>for</code>。<h4 id=loop>loop</h4><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>loop {
+// do something
+if condition {
+break //something
+}
+}
+</code></pre><p><code>loop</code>循环执行同一段代码块。可以通过 break 关键字从<code>loop</code>循环中返回一个值。<h4 id=while>while</h4><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+let mut number = 3;
+
+while number != 0 {
+println!("{}!", number);
+
+number -= 1;
+}
+
+println!("LIFTOFF!!!");
+}
+</code></pre><p><code>while</code>循环整合了<code>loop</code>、<code>if</code>、<code>else</code>、<code>break</code>的功能，让代码块更清晰，没有很深的嵌套。<h5 id=for>for</h5><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+let a = [10, 20, 30, 40, 50];
+
+for element in a.iter() {
+println!("the value is: {}", element);
+}
+}
+</code></pre><p><code>for</code>用来遍历集合中的元素。同<code>while</code>通过下标访问的方式相比，<code>for</code>更快更安全，原因在于：<ul><li>编译器会加入 runtime 代码，在每次<code>while</code>循环时检查循环条件。<li>通过下标访问难免出现越界和遗漏等 bug。 基于以上优点，<code>for</code>循环使用的频率最高，就算在非遍历集合的场景下。</ul><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+for number in (1..4).rev() {
+println!("{}!", number);
+}
+println!("LIFTOFF!!!");
+}
+// 3!
+// 2!
+// 1!
+// LIFTOFF!!!
+</code></pre><p>上面代码中<code>(1..4)</code>是标准库中的<code>Range</code>类型。按顺序生成<strong>左闭右开</strong>的集合序列，可以通过<code>rev</code>方法进行逆转。</div><div class=post-tags><a class=tag href=/tags/rust>#Rust </a></div></article></main><footer><hr><div id=footer-container><p>Made using <a rel="noopener noreferrer" href=https://github.com/Speyll/anemone target=_blank>anemone</a> Zola theme</div></footer><script defer src=https://leokang28.github.io/js/script.js></script>

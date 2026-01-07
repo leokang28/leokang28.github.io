@@ -1,0 +1,147 @@
+<!doctype html><html lang=en><head><meta charset=UTF-8><meta content="width=device-width,initial-scale=1.0" name=viewport><meta content="index, follow" name=robots><link href="https://leokang28.github.io/ rss.xml" rel=alternate title=RSS type=application/rss+xml><title>KSLEO | Error Handling</title><link as=style href=https://leokang28.github.io/css/style.css rel=preload><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/reset-min.css rel=stylesheet><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/suCSS-min.css rel=stylesheet><link href=https://leokang28.github.io/css/style.css rel=stylesheet><link href=https://leokang28.github.io/css/custom.css rel=stylesheet><link href=https://leokang28.github.io/favicon.ico rel=icon type=image/x-icon><body><nav id=nav-bar><a class=site-title href=/>KSLEO</a><a href=/archive> /archive </a><a href=/tags> /tags </a><a href=/about> /about </a><div aria-label="Toggle theme" class=theme-toggle data-icon-base=https://leokang28.github.io/icons.svg data-icon-dark=#darkMode data-icon-light=#lightMode data-sound-src=https://leokang28.github.io/click.ogg id=theme-toggle role=button tabindex=0><svg class=icon><use id=theme-icon></use></svg></div></nav><main><article class=post><header class=post-header><time datetime=2021-02-20T01:17:20+08:00>Published on: <span class=accent-data>2021-02-20</span> </time><h1>Error Handling</h1></header><div class=toc-container><h2>Table of content</h2><ul><li><a href=https://leokang28.github.io/blog/07-error-handling/#chapter-7-error-handling>Chapter 7 - Error Handling</a> <ul><li><a href=https://leokang28.github.io/blog/07-error-handling/#section-1-unrecoverable-errors-with-panic>Section 1 - Unrecoverable Errors with panic!</a><li><a href=https://leokang28.github.io/blog/07-error-handling/#section-2-recoverable-errors-with-result>Section 2 - Recoverable Errors with Result</a></ul></ul></div><div class=post-content><h1 id=chapter-7-error-handling>Chapter 7 - Error Handling</h1><p>Rust 的可靠性之一就在于它的错误处理。在很多情况下，Rust 要求你在代码编译之前对所有可能的错误情况进行处理。在部署到生产环境之前确保发现并处理错误，这让你的代码健壮性更强。<p>Rust 将错误分为两个大类：<em>recoverable</em>和<em>unrecoverable</em>。前者例如读取不存在的文件，将该错误上报并且重试这个操作是合理的行为。后者一半是由于代码逻辑 bug，例如数组越界访问。<p>大多数语言不会对这两个大类进行区分，一般都是采用同一套解决方式，例如异常机制。Rust 没有异常机制，Rust 用<code>Result&LTU,E></code>处理 recoverable 类型的错误，用<code>panic!</code>宏处理 unrecoverable 类型的错误。<h2 id=section-1-unrecoverable-errors-with-panic>Section 1 - Unrecoverable Errors with panic!</h2><p>当出现一些意料之外的错误，并且没有后续的处理逻辑或者不知道该如何处理时，Rust 有<code>panic!</code>宏。当<code>panic!</code>宏调用时，打印出错误信息，然后释放清空堆栈内存退出程序。<p>:::details Unwinding the Stack or Aborting in Response to a Panic 一般来说，当 panic 发生后，Rust 会进入<em>unwinding</em>阶段，它需要到堆栈顶部，开始遍历堆栈清空数据和函数，这是一个很费时的操作。另一种方案是<em>abort</em>，即程序退出时 Rust 不会清空堆栈，而将这个操作交给操作系统。如果你需要你的项目编译结果尽可能小，你可以通过设置<em>Cargo.toml</em>文件来让你的程序为 abort 模式。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>[profile.release]
+panic = 'abort'
+</code></pre><p>:::<p>下面简单调用一下<code>panic!</code>宏来看一看它的输出。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    panic!("crash");
+}
+// thread 'main' panicked at 'crash', src/main.rs:17:9
+// note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+</code></pre><p>可以看到<code>panic!</code>输出了两行信息，第一行是错误信息和错误在源代码在文件中的位置。<p>在这个例子中，我们可以跟踪代码在对应的位置找到导致<code>panic!</code>宏调用的代码。<h3 id=using-a-panic-backtrace>Using a <code>panic!</code> Backtrace</h3><p>我们可以设置<code>RUST_BACKTRACE</code>环境变量来获取发生错误的完整调用链路。它是一个函数的调用堆栈列表，从栈顶开始一直到我们自己的代码文件。这个链路中可能包含核心文件、标准库文件、其他你使用到的第三方模块代码。你所在文件那一行上面的内容是你的代码调用的文件，下面的内容是调用你代码的文件。<pre><code>stack backtrace:
+    0: backtrace::backtrace::libunwind::trace
+                at /Users/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/backtrace-0.3.46/src/backtrace/libunwind.rs:86
+    1: backtrace::backtrace::trace_unsynchronized
+                at /Users/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/backtrace-0.3.46/src/backtrace/mod.rs:66
+    2: std::sys_common::backtrace::_print_fmt
+                at src/libstd/sys_common/backtrace.rs:78
+    3: &LTstd::sys_common::backtrace::_print::DisplayBacktrace as core::fmt::Display>::fmt
+                at src/libstd/sys_common/backtrace.rs:59
+    4: core::fmt::write
+                at src/libcore/fmt/mod.rs:1076
+    5: std::io::Write::write_fmt
+                at src/libstd/io/mod.rs:1537
+    6: std::sys_common::backtrace::_print
+                at src/libstd/sys_common/backtrace.rs:62
+    7: std::sys_common::backtrace::print
+                at src/libstd/sys_common/backtrace.rs:49
+    8: std::panicking::default_hook::{{closure}}
+                at src/libstd/panicking.rs:198
+    9: std::panicking::default_hook
+                at src/libstd/panicking.rs:218
+    10: std::panicking::rust_panic_with_hook
+                at src/libstd/panicking.rs:486
+    11: rust_begin_unwind
+                at src/libstd/panicking.rs:388
+    12: core::panicking::panic_fmt
+                at src/libcore/panicking.rs:101
+    13: core::panicking::panic_bounds_check
+                at src/libcore/panicking.rs:73
+    14: &LTusize as core::slice::SliceIndex<[T]>>::index
+                at /Users/ksleo/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src/libcore/slice/mod.rs:2872
+    15: core::slice::&LTimpl core::ops::index::Index&LTI> for [T]>::index
+                at /Users/ksleo/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src/libcore/slice/mod.rs:2732
+    16: &LTalloc::vec::Vec&LTT> as core::ops::index::Index&LTI>>::index
+                at /Users/ksleo/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src/liballoc/vec.rs:1942
+    17: p::main
+                at src/main.rs:5
+    18: std::rt::lang_start::{{closure}}
+                at /Users/ksleo/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src/libstd/rt.rs:67
+    19: std::rt::lang_start_internal::{{closure}}
+                at src/libstd/rt.rs:52
+    20: std::panicking::try::do_call
+                at src/libstd/panicking.rs:297
+    21: std::panicking::try
+                at src/libstd/panicking.rs:274
+    22: std::panic::catch_unwind
+                at src/libstd/panic.rs:394
+    23: std::rt::lang_start_internal
+                at src/libstd/rt.rs:51
+    24: std::rt::lang_start
+                at /Users/ksleo/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src/libstd/rt.rs:67
+    25: main
+</code></pre><p>为了获取这个输出，debug 标识必须是 enable 的，在运行<code>cargo build</code>或者<code>cargo run</code>的并且不带<code>--release</code>选项的时候，该标识默认是 enable 的。具体的输出内容和你的操作系统以及 Rust 版本有关。<h2 id=section-2-recoverable-errors-with-result>Section 2 - Recoverable Errors with <code>Result</code></h2><p>大多数错误抛出的时候，都没有必要将程序退出。比如，当读取的文件不存在时，可以考虑创建该文件而不是终止进程。<p><code>Result</code>枚举有两个值，<code>Ok</code>和<code>Err</code>。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>enum Result&LTT, E> {
+    Ok(T),
+    Err(E),
+}
+</code></pre><p>T 和 E 是泛型变量。T 代表成功情况下返回值的类型，E 代表失败情况下错误的返回类型。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt");
+}
+</code></pre><p>如何知道<code>File::open</code>函数返回的是一个<code>Result</code>枚举呢？一种方式是查看标准库 API 文档，另外一种方式是给变量<code>f</code>指定一个其他的数据类型。然后编译代码，编译器会给出类型不匹配的错误信息。<p>这里泛型变量<code>T</code>会被填充为成功值的类型，在这里是一个<code>std::fs::File</code>类型的文件句柄，<code>E</code>则是<code>std::io::Error</code>类型。这意味着<code>File::open</code>函数可能会返回一个文件句柄，可以用来进行读写。或者可能返回一个 io 错误。<p>因此我们需要用<code>match</code>表达式对<code>Result</code>的所有情况进行覆盖。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt");
+
+    let f = match f {
+        Ok(file) => file,
+        Err(error) => panic!("Problem opening the file: {:?}", error),
+    };
+}
+</code></pre><h3 id=matching-on-different-errors>Matching on Different Errors</h3><p>上面的代码，当打开文件出错时，不论何种错误都会调用<code>panic!</code>宏然后退出程序。而我们的期望时根据不同的错误类型，有不同的处理方案。比如因为文件不存在，我们希望创建文件；如果是因为没有权限，则调用<code>panic!</code>宏退出程序。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::fs::File;
+use std::io::ErrorKind;
+
+fn main() {
+    let f = File::open("hello.txt");
+
+    let f = match f {
+        Ok(file) => file,
+        Err(error) => match error.kind() {
+            ErrorKind::NotFound => match File::create("hello.txt") {
+                Ok(fc) => fc,
+                Err(e) => panic!("Problem creating the file: {:?}", e),
+            },
+            other_error => {
+                panic!("Problem opening the file: {:?}", other_error)
+            }
+        },
+    };
+}
+</code></pre><p><code>File::open</code>函数返回的是一个标准库提供的<code>io::Error</code>类型的错误。这个类型上有一个<code>kind</code>方法用来获取<code>io::ErrorKind</code>类型的值。这个类型也由标准库提供，枚举了一些 io 操作可能出现的错误类型。我们想要在<code>ErrorKind::NotFound</code>错误类型出现时，创建一个新文件。由于<code>File::create</code>方法也有可能失败，所以也需要用<code>match</code>表达式覆盖可能出现的情况。<p>但是这里出现了太多的<code>match</code>表达式嵌套。后面会介绍*闭包（closure）*的用法。<h3 id=shortcuts-for-panic-on-error-unwrap-and-expect>Shortcuts for Panic on Error: <code>unwrap</code> and <code>expect</code></h3><p><code>match</code>表达式能够满足需求。但是太多的<code>match</code>显得太啰嗦，表意也不够清晰。<code>Result&LTT, E></code>上有许多工具函数，其中一个叫做<code>unwrap</code>的函数可以作为<code>match</code>表达式的语法糖使用。如果是成功状态，<code>unwrap</code>方法会返回值；如果是失败状态，<code>unwrap</code>会调用<code>panic!</code>宏。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt").unwrap();
+}
+</code></pre><p>另外一个<code>expect</code>方法，作用和<code>unwrap</code>一样，但是可以让我们指定错误输出信息。可以表达我们想表达的错误信息，在错误追踪时也比较容易。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt").expect("Failed to open hello.txt");
+}
+</code></pre><h3 id=propagating-errors>Propagating Errors</h3><p>当你实现一个函数时，它的实现可能会抛出某些错误，与其在你的函数中捕获这个错误，不如把这个错误传递给调用者，好让调用者决定如何处理这个错误。这个被称为错误的<em>传递（propgation）</em>，这给了调用者更多的控制权，它内部也许有更完善的信息和逻辑来处理错误。<p>例如，我们要写一个函数，在一个文件中读取一些内容，如果读取错误，将这个错误抛给调用者。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::fs::File;
+use std::io;
+use std::io::Read;
+
+fn read_username_from_file() -> Result&LTString, io::Error> {
+    let f = File::open("hello.txt");
+
+    let mut f = match f {
+        Ok(file) => file,
+        Err(e) => return Err(e),
+    };
+
+    let mut s = String::new();
+
+    match f.read_to_string(&mut s) {
+        Ok(_) => Ok(s),
+        Err(e) => Err(e),
+    }
+}
+</code></pre><h4 id=a-shortcut-for-propagating-errors-the-operator>A Shortcut for Propagating Errors: the ? Operator</h4><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::fs::File;
+use std::io;
+use std::io::Read;
+
+fn read_username_from_file() -> Result&LTString, io::Error> {
+    let mut f = File::open("hello.txt")?;
+    let mut s = String::new();
+    f.read_to_string(&mut s)?;
+    Ok(s)
+}
+</code></pre><p><code>?</code>操作符跟在<code>Result&LTT, E></code>类型之后，当<code>Result</code>值是<code>Ok</code>时，它的值会作为表达式的值返回；当值是<code>Err</code>时，会将这个错误作为整个函数的返回值抛出。<p><code>match</code>表达式和<code>?</code>操作符还有一点不同：<code>?</code>操作符抛出的错误会经过一个由标准库<code>From</code>trait 提供的，名称为<code>from</code>的函数处理，它将原始的错误类型转换成我们当前函数声明中定义的错误类型。只要错误类型实现了<code>from</code>方法，<code>?</code>操作符就会调用它来进行错误类型转换。<p><code>?</code>操作符使函数体更加简洁，上面这个例子还可以更加简洁。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::fs::File;
+use std::io;
+use std::io::Read;
+
+fn read_username_from_file() -> Result&LTString, io::Error> {
+    let mut s = String::new();
+    File::open("hello.txt")?.read_to_string(&mut s)?;
+    Ok(s)
+}
+</code></pre></div><div class=post-tags><a class=tag href=/tags/rust>#Rust </a></div></article></main><footer><hr><div id=footer-container><p>Made using <a rel="noopener noreferrer" href=https://github.com/Speyll/anemone target=_blank>anemone</a> Zola theme</div></footer><script defer src=https://leokang28.github.io/js/script.js></script>

@@ -1,0 +1,233 @@
+<!doctype html><html lang=en><head><meta charset=UTF-8><meta content="width=device-width,initial-scale=1.0" name=viewport><meta content="index, follow" name=robots><link href="https://leokang28.github.io/ rss.xml" rel=alternate title=RSS type=application/rss+xml><title>KSLEO | Ownership</title><link as=style href=https://leokang28.github.io/css/style.css rel=preload><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/reset-min.css rel=stylesheet><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/suCSS-min.css rel=stylesheet><link href=https://leokang28.github.io/css/style.css rel=stylesheet><link href=https://leokang28.github.io/css/custom.css rel=stylesheet><link href=https://leokang28.github.io/favicon.ico rel=icon type=image/x-icon><body><nav id=nav-bar><a class=site-title href=/>KSLEO</a><a href=/archive> /archive </a><a href=/tags> /tags </a><a href=/about> /about </a><div aria-label="Toggle theme" class=theme-toggle data-icon-base=https://leokang28.github.io/icons.svg data-icon-dark=#darkMode data-icon-light=#lightMode data-sound-src=https://leokang28.github.io/click.ogg id=theme-toggle role=button tabindex=0><svg class=icon><use id=theme-icon></use></svg></div></nav><main><article class=post><header class=post-header><time datetime=2021-05-08T09:42:34+08:00>Published on: <span class=accent-data>2021-05-08</span> </time><h1>Ownership</h1></header><div class=toc-container><h2>Table of content</h2><ul><li><a href=https://leokang28.github.io/blog/02-ownership/#chapter-2-ownership>Chapter 2 - Ownership</a> <ul><li><a href=https://leokang28.github.io/blog/02-ownership/#section-1-shen-me-shi-ownership>Section 1 - 什么是 Ownership</a><li><a href=https://leokang28.github.io/blog/02-ownership/#section-2-references-and-borrowing>Section 2 - References and Borrowing</a><li><a href=https://leokang28.github.io/blog/02-ownership/#section-3-the-slice-type>Section 3 - The Slice Type</a></ul></ul></div><div class=post-content><h1 id=chapter-2-ownership>Chapter 2 - Ownership</h1><p>Ownership 是 Rust 最重要的功能之一，它在没有<a href=https://en.wikipedia.org/wiki/Garbage_collection_(computer_science) rel=noopener target=_blank>gc</a>的前提下保证了内存读写安全。<h2 id=section-1-shen-me-shi-ownership>Section 1 - 什么是 Ownership</h2><p><em>ownership</em>是 Rust 的核心功能，虽然这个概念很容易解释，但是对于其他语言而言是一个很陌生的概念。<p>所有程序都有内存调度的方式，比如很常见的 gc，不断的收集没有在使用的内存碎片。很多语言都需要明确的分配和释放内存，Rust 则使用外的方式：通过 ownership 下的一组规则，在编译阶段对内存进行检查，对运行时的性能没有任何影响。<p>:::details Stack 和 Heap stack 和 heap 都是在程序运行时可以使用的一部分内存，但是他们的结构不一样。栈是先进先出（FILO）的调度策略，数据入栈操作称<em>push</em>，出栈称为<em>pop</em>。<p>所有在 stack 上存储的数据，其大小都必须是已知和固定的。数据大小在编译阶段无法确定，或者可能会在运行时扩容的数据，都必须存储 heap。堆的组织性比较差，首先需要在堆内存中请求一块空间。内存调度器会找一块大小合适的空内存并把它打上标记，表示已被使用，然返回一个<em>指针（pointer）</em>。指针代表的是该内存区域的地址。这个过程称为<em>allocating</em>。由于指针是大小确定且固定的数据，因此针可以存储在 stack 上。<p>stack 存储比 heap 要快，因为不需要内存调度器分配内存，stack 的指针始终在其顶部。相比之下，heap 内存分配需要内存调度寻找大小和据匹配的内存，并且还需要为下一次分配做一些前置工作比如内存标记等。<p>stack 访问也比 heap 快，因为 heap 需要先根据存储在 stack 上的指针寻址。在多个指针跳转时，这些指针如果相隔太远，也会让访问更慢。<p>在调用函数时，参数（可能是 heap 上数据的指针）和函数的内部变量会被存进 stack。函数执行结束时这些数据会从 stack 中清除。<p>保持对 heap 数据使用的监控，最小化这些 heap 上的数据内存大小，减少重复数据内容，清空没有使用的内存已确保不会内存溢出。这些都 ownership 解决的问题 :::<h3 id=ownership-rules>Ownership Rules</h3><ul><li>Rust 中每个值都有一个变量作为它的 owner<li>每个值只能有一个 owner<li>当 owner 超出作用域块，值将被删除</ul><h3 id=variable-scope>Variable scope</h3><p>变量在定义的那一刻有效，直到定义该变量的作用域执行完毕。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>{ // s is not valid here, it’s not yet declared
+  let s = "hello"; // s is valid from this point forward
+  // do stuff with s
+} // this scope is now over, and s is no longer valid
+</code></pre><h3 id=stringlei-xing><code>String</code>类型</h3><p>为了说明 ownership 的作用机制，需要一个比 Chapter1 中的基础数据类型稍微复杂一些的数据，之前介绍的数据全都是存储在 stack 上的，但是目前我们需要存储在 heap 上的数据，用来解释 Rust 如何决策释放 heap 内存的时机。<p>这里用<code>String</code>类型举例，专注于它和 ownership 相关的部分，这些特性在其他复杂数据类型也适用，不论是标准库导出的还是你自己定义的。<p>之前的代码块使用了字符串字面量，这种方式很便捷，但是在大部分场景下这种方式不太适用。一方面是因为字符串字面量是 immutable 的，其次是因为大部分情况下我们并不知道要存储的数据是什么，比如存储用户输入。因此 Rust 还有另外一种字符串类型，<code>String</code>。这种类型是分配在 heap 上的，因此能够任意修改和存储任意大小的数据。<code>String</code>类型可以通过标准库导出的<code>from</code>方法来创建<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>  let s = String::from("hello");
+</code></pre><p>这种 string 数据可以修改<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>  s.push_str(", world!"); // push_str() appends a literal to a String
+
+  println!("{}", s)
+</code></pre><p>为什么字面量不可以修改而 String 却可以？主要区别在于这两种类型的内存处理方式。<h3 id=memory-and-allocation>Memory and Allocation</h3><p>字符串字面量在编译截断是知道其内容的，因此它直接被 hardcode 到可执行文件中，因此它更快更有效率。这些特性也只有在数据不变时才有效。但是对于大小、数据在编译阶段都不确定，运行时会改变其内容的数据来说，无法在可执行文件中为这些数据插入 blob 内存。<p><code>String</code>类型为了支持数据可变、内存可扩容，在编译阶段无法确定数据内容，在 heap 上分配了一定数量的内存出来。这意味着：<ul><li>内存必须在运行时由内存调度器分配。<li>需要一种在内存使用完毕时，将内存交还给内存调度器的方法。</ul><p>第一点由编码人员控制：当执行<code>String::from</code>方法时，它会去请求所需要的内存大小。这在大多数语言里都差不多。<p>第二点 Rust 与其他语言有些差异。在有 gc 机制的语言中，gc 会持续检查内存，回收没有使用的内存碎片。但是在没有 gc 机制的语言中，内存回收就是编码人员的职责，此时我们需要显式调用释放内存，就像申请内存时调用<code>String::from</code>方法一样。内存管理一直都是一个难题，如果编码人员忘记回收内存，就会造成内存泄露；如果回收的太早，又会导致程序拿到一个悬空指针；如果对同一块内存释放了两次，同样也是个 bug。编码人员必须保证一次申请匹配一次释放。<p>Rust 使用了一种不同的方式：当 owner 变量所在的作用域执行结束时，其内存会被自动回收。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>{
+    let s = String::from("hello"); // s is valid from this point forward
+
+    // do stuff with s
+}   // this scope is now over, and s is no longer valid
+</code></pre><p>当作用域结束时，Rust 会调用一个特殊方法<code>drop</code>。 :::tip Node: 在 C++中，这种在生命周期结束时重新分配资源的模式被称作<em>Resource Acquisition Is Initialization (RAII)</em>。如果你对这种模式比较熟悉，Rust 的<code>drop</code>方法同样也很容易理解。 :::<h4 id=ways-variables-and-data-interact-move>Ways Variables and Data Interact: Move</h4><p>在 Rust 中多个变量对相同数据的交互方式有多种。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let x = 5;
+let y = x;
+</code></pre><p>这个例子很好理解，将 5 绑定到变量<code>x</code>上，创建一份变量<code>x</code>的值的拷贝并绑定在变量<code>y</code>上。整型数字是数据已知、大小确定的，在 stack 上会存储两份数据。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s1 = String::from("hello");
+let s2 = s1;
+</code></pre><p>这个例子在写法上和上面的例子看起来一致，但是在行为上有很大的差别。下图说明了<code>String</code>类型底层所做的逻辑。<code>String</code>类型由左侧三部分组成：一个指向 heap 的内存地址，表示长度的值，表示容量的值，这组数据存储在 stack 上。右侧是 heap 上存储数据的内存。</p><img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-01.svg style=display:block width=350> length是指数据具体使用的内存字节长度，capacity是`String`类型从内存调度器申请到的内存字节长度。 <p>当把<code>s1</code>赋值给<code>s2</code>时，<code>String</code>数据被复制了，也就是指针、长度和容量这个数据结构被复制了，而具体存储在 heap 上的数据并没有被复制。 <img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-02.svg style=display:block width=350><p>如果<code>s2 = s1</code>这段代码执行 heap 复制，如果在 heap 上的数据量过大，这将会是一个很昂贵的操作，性能带来损耗并且双倍的内存占用。 <img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-03.svg style=display:block width=350><p>之前提到变量所在作用域执行结束时，Rust 会自动调用<code>drop</code>方法释放该段内存。但是在上面的例子中会出现问题：作用域结束时，<code>s1</code>和<code>s2</code>都执行释放操作，但是这两个指针指向的是同一个地址，这就会引起<em>多次释放同一内存</em>的问题。为了确保内存安全，Rust 在这种情况下有其他一些细节：Rust 不会去复制 heap 内存，而是认为<code>s1</code>已经是一个无效引用，在作用域执行结束时，Rust 不会执行任何与<code>s1</code>相关的释放操作。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s1 = String::from("hello");
+let s2 = s1;
+
+println!("{}", s1);
+
+// error[E0382]: borrow of moved value: `s1`
+</code></pre><p>执行以上代码，编译器会抛出错误。<p>如果你熟悉深复制和浅复制的概念，之前<code>String</code>类型下复制指针、长度和容量数据结构的操作，就可以认为是浅复制。但是由于 Rust 同时又让第一个值<code>s1</code>失效了，因此在 Rust 中称为<em>move</em>而不是<em>shallow copy</em>。在刚才的例子中，可以认为<code>s1</code><em>move</em>到了<code>s2</code>。 <img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-04.svg style=display:block width=350><h4 id=ways-variables-and-data-interact-clone>Ways Variables and Data Interact: Clone</h4><p>如果我们执行 heap 数据深复制，而不仅仅是 stack 浅复制，可以调用<code>clone</code>方法。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s1 = String::from("hello");
+let s2 = s1.clone();
+
+println!("s1 = {}, s2 = {}", s1, s2);
+</code></pre><h4 id=stack-only-data-copy>Stack-Only Data: Copy</h4><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let x = 5;
+let y = x;
+
+println!("x = {}, y = {}", x, y);
+</code></pre><p>这段代码执行不会有任何问题。但这与刚刚得到到结论出现了分歧：在没有调用 clone 得情况下，<code>x</code>仍然是有效的，看似没有发生<em>move</em>。<p>原因在于整型变量是编译时大小固定的，存储在 stack 上，并且其值很容易复制。也就是说没有必要在<code>y</code>创建后，将<code>x</code>标记为失效。也就是说在这种情况下，浅复制和深复制没有任何区别，所以就算调用<code>clone</code>方法，也不会与浅复制在行为上有任何的不同。<p>Rust 有一个特殊的标记被称作<code>Copy</code> trait。一切在 stack 上存储的数据类型都可以理解为存在这个<code>Copy</code> trait。如果一个类型有<code>Copy</code> trait，旧的变量被分配给新的变量后仍然是有效的。Rust 不允许我们给任何实现，或者其任何一部分实现了<code>Drop</code> trait 的类型做<code>Copy</code> trait 标记。<p>任何基础数据类型的组合是<code>Copy</code>的，凡是不需要分配或属于某种形式的资源的，都是<code>Copy</code>。下面是一些<code>Copy</code>类型举例：<ul><li>所有整型，例如<code>u32</code>。<li>所有浮点，例如<code>f64</code>。<li><code>bool</code>。<li><code>char</code>。<li>只包含<code>Copy</code>类型的 tuples。比如<code>(u32, u64)</code>是<code>Copy</code>，<code>(u32, String)</code>不是。</ul><h3 id=ownership-and-functions>Ownership and Functions</h3><p>把值传递给函数参数和传递给变量，在语义上是相似的，比如都会执行<em>move</em>或者复制。用一个例子说明<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let s = String::from("hello");  // s comes into scope
+
+    takes_ownership(s); // s's value moves into the function
+                                     // and so is no longer valid here
+
+    let x = 5;                  // x comes into scope
+
+    makes_copy(x);     // x would move into the function,
+                                     // but i32 is Copy, so it’s okay to still
+                                     // use x afterward
+
+} // Here, x goes out of scope, then s. But because s's value was moved, nothing
+  // special happens.
+
+fn takes_ownership(some_string: String) { // some_string comes into scope
+    println!("{}", some_string);
+} // Here, some_string goes out of scope and `drop` is called. The backing
+  // memory is freed.
+
+fn makes_copy(some_integer: i32) { // some_integer comes into scope
+    println!("{}", some_integer);
+} // Here, some_integer goes out of scope. Nothing special happens.
+</code></pre><h3 id=return-values-and-scope>Return Values and Scope</h3><p>函数返回值也会使 ownership 发生转移。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let s1 = gives_ownership();         // gives_ownership moves its return
+                                        // value into s1
+
+    let s2 = String::from("hello");     // s2 comes into scope
+
+    let s3 = takes_and_gives_back(s2);  // s2 is moved into
+                                        // takes_and_gives_back, which also
+                                        // moves its return value into s3
+} // Here, s3 goes out of scope and is dropped. s2 goes out of scope but was
+  // moved, so nothing happens. s1 goes out of scope and is dropped.
+
+fn gives_ownership() -> String {             // gives_ownership will move its
+                                             // return value into the function
+                                             // that calls it
+
+    let some_string = String::from("hello"); // some_string comes into scope
+
+    some_string                              // some_string is returned and
+                                             // moves out to the calling
+                                             // function
+}
+
+// takes_and_gives_back will take a String and return one
+fn takes_and_gives_back(a_string: String) -> String { // a_string comes into
+                                                      // scope
+
+    a_string  // a_string is returned and moves out to the calling function
+}
+</code></pre><p>变量的 ownership 遵循同一套模式：赋值给其他变量，ownership 就会转移。当一个变量的数据存储在 heap 上时，它所在的作用域在执行完毕后，该变量的 heap 空间就会被释放，除非它把 ownership 转移给其他变量。<p>如果我们只想在函数中使用变量而不想转移其 ownership 呢？想一想除了要把函数主体逻辑的结果返回，还要要把传进函数的 ownership 再传出去，这也太操蛋了。我们可以通过<code>Tuple</code>实现这个需求。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let s1 = String::from("hello");
+
+    let (s2, len) = calculate_length(s1);
+
+    println!("The length of '{}' is {}.", s2, len);
+}
+
+fn calculate_length(s: String) -> (String, usize) {
+    let length = s.len(); // len() returns the length of a String
+
+    (s, length)
+}
+</code></pre><p>对于一个常见的概念来说，不应该做这么多大量的额外工作。好在 Rust 已经实现了这个功能，称之为<em>references</em>。<h2 id=section-2-references-and-borrowing>Section 2 - References and Borrowing</h2><p>之前我们在<code>calculate_length</code>中返回了一个元组用于返回函数结果和 ownership，以便我们在函数调用完成后可以继续使用<code>s1</code>变量。因为之前提过，传参和赋值在行为上差不多是一致的，<code>s1</code>变量传参进入<code>calculate_length</code>函数后，其 ownership 也被转移到了函数内部，<code>s1</code>此时是不可用的了。<p>下面是一个通过传入一个变量的 reference，来控制 ownership 不被传递到函数内部的例子。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let s1 = String::from("hello");
+
+    let len = calculate_length(&s1);
+
+    println!("The length of '{}' is {}.", s1, len);
+}
+
+fn calculate_length(s: &String) -> usize { // s is a reference to a String
+    s.len()
+} // Here, s goes out of scope. But because it does not have ownership of what
+  // it refers to, nothing happens.
+</code></pre><p>首先 Tuple 被删除了，其次参数的定义和传递都加了一个<code>&</code>符号，这个符号代表的就是<em>references</em>，引用可以只读变量的值而不转移其所有权。 <img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-05.svg style=display:block width=500> :::tip Note 与<em>reference</em>相对的操作称为<em>dereference</em>，运算符是<code>*</code>。 :::<p><code>&s1</code>这种语法创建了一个引用，指向被引用的值，但是不转移原变量的所有权。因为没有所有权，所以函数结束时，它指向的 heap 区域不会被释放。当函数参数以引用方式传递时，函数不再需要显式的返回所有权，因为所有权一开始就没有发生转移。<p>引用作为函数参数称之为<em>borrowing</em>。如果我们尝试改变引用，编译器会报错。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let s = String::from("hello");
+
+    change(&s);
+}
+
+fn change(some_string: &String) {
+    some_string.push_str(", world");
+}
+
+// error[E0596]: cannot borrow `*some_string` as mutable, as it is behind a `&` reference
+</code></pre><p>和变量的默认行为相同，引用也是 immutable 的。<h3 id=mutable-reference>Mutable Reference</h3><p>只需要进行一个改动，就可以获取一个 mutable 的引用。即在函数定义和调用的时候，在<code>&</code>操作符后加上<code>mut</code>关键字。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let s = String::from("hello");
+
+    change(&mut s);
+}
+
+fn change(some_string: &mut String) {
+    some_string.push_str(", world");
+}
+</code></pre><p>可变引用有一个限制，同一个作用域下，对同一个数据只能有一个可变引用。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let mut s = String::from("hello");
+
+let r1 = &mut s;
+let r2 = &mut s;
+
+println!("{}, {}", r1, r2);
+// error[E0499]: cannot borrow `s` as mutable more than once at a time
+</code></pre><p>这样做的好处在于避免在编译阶段造成数据竞争。数据竞争和竞态条件相似，在以下三个行为发生时会引发竞态：<ul><li>两个以上指针同时访问同一资源。<li>至少一个指针正在被用于写操作。<li>没有用于同步访问数据的机制。</ul><p>数据竞争在运行时调试时很难找出问题并且解决它。Rust 中不会发生这种情况，因为代码有可能引发竞态时，编译阶段就不会通过。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let mut s = String::from("hello");
+
+let r1 = &s; // no problem
+let r2 = &s; // no problem
+let r3 = &mut s; // BIG PROBLEM
+
+println!("{}, {}, and {}", r1, r2, r3);
+
+// error[E0502]: cannot borrow `s` as mutable because it is also borrowed as immutable
+</code></pre><p>当存在 immutable 的引用时，不可以创建 mutable 的引用。可以存在多个 immutable 引用，因为仅仅读数据并不会造成脏读。<p>引用的生命周期从定义它开始，到最后一次使用它结束，下面的代码编译是可以通过的，因为在 mutable 引用创建之前，immutable 引用的生命周期就结束了。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let mut s = String::from("hello");
+
+let r1 = &s; // no problem
+let r2 = &s; // no problem
+println!("{}, {}", r1, r2);
+let r3 = &mut s; // no problem
+
+println!("{}", r3);
+
+// error[E0502]: cannot borrow `s` as mutable because it is also borrowed as immutable
+</code></pre><p>尽管这类编译错误非常令人烦躁，但是在编译阶段明确指出问题所在总好过在运行时出错。<h3 id=dangling-references>Dangling References</h3><p>悬空指针是指针指向的地址，被其他操作释放掉了。Rust 编译器保证不会出现悬空指针：如果有一个指针指向一块内存区域，编译器会保证在这块内存区域的数据被使用前，该指针所在的作用域不会结束。<p>下面是一个创建悬空指针的例子。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let s = dangle();
+}
+
+fn dangle() -> &String {
+    let str = String::from("hello");
+
+    &str
+}
+</code></pre><p>这段代码编译器会报错，其中有这样一条帮助信息：<blockquote><p>this function’s return type contains a borrowed value, but there is no value for it to be borrowed from</blockquote><p>因为<code>s</code>是在<code>dangle</code>函数中创建的，当<code>dangle</code>函数执行结束，<code>s</code>指向的内存区域也被释放了，意味着我们返回了一个不合法的<code>String</code>引用，Rust 编译器是不会允许此类情况发生的。<p>解决方法是直接返回原变量，也就是转移所有权，这样在函数结束后相关内存就不会被释放，因为所有权被转移到了外部变量。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn dangle() -> String {
+    let str = String::from("hello");
+
+    str
+}
+</code></pre><h3 id=the-rules-of-references>The Rules of References</h3><ul><li>任何情况下都只能有一个 mutable 引用或多个 immutable 引用。<li>引用必须是有效的。</ul><h2 id=section-3-the-slice-type>Section 3 - The Slice Type</h2><p>另外一种没有所有权的数据类型是切片，切片引用一段集合上连续的元素。<p>引入一个小例子：写一个函数，接受一个 String 作为参数，返回它里面的第一个词。如果 String 中没有匹配到空格，说明传入的是一个词，此时返回原参数。<p>考虑一下这个函数的声明该怎么写<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn first_word(s: &String) -> ?
+</code></pre><p>这个方法中我们不想要获取所有权，所以传入一个引用。但是它应该返回什么类型？第一种方案可以返回结果的最后一个字母的下标。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn first_word(s: &String) -> usize {
+    let bytes = s.as_bytes();
+    for (i, &item) in bytes.iter().emumrate() {
+        if item == b' ' {
+            return i;
+        }
+    }
+    s.len()
+}
+</code></pre><p>这个方法的问题在于，它返回的下标仅在<code>&String</code>上下文中有意义，如果该引用的值被修改了，则之前的运算值也不正确了。如果我们返回的是前后两个下标<code>fn second_word(s: &String) -> (usize, usize) {</code>，那么这种方式就更加脆弱，此时已经有三个不相关的变量需要保持数据同步了。<h3 id=string-slices>String Slices</h3><p>字符串切片是字符串其中一段内容的引用。字符串切片可以使用下面的方法创建<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s = String::from("hello world");
+
+let hello = &s[0..5];
+let world = &s[6..11];
+</code></pre><p>切片和引用是类似的，不过是用<code>[start_index..end_index]</code>这种方式截断了字符串的一部分，该区间是左闭右开的。切片内部实现存储的是首地址和切片长度。 <img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-06.svg style=display:block width=500><p>Rust 的<code>..</code>范围语法，如果定义的范围从 0 开始，那么 0 可以不写。所以，下面两种写法是一样的。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s = String::from("hello");
+
+let slice = &s[0..2];
+let slice = &s[..2];
+</code></pre><p>如果范围是从头部到尾部，那么两边的数字都可以省略掉。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s = String::from("hello");
+
+let len = s.len();
+
+let slice = &s[0..len];
+let slice = &s[..];
+</code></pre><p>:::warning 注意 字符串切片下标必须是在合法的 utf8 字符边界处，如果下标处于多字节字符之中，程序会抛出错误。 :::<p>有了这些相关概念，之前的<code>first_word</code>函数可以做一些修改。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn first_word(s: &String) -> &str {
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate() {
+        if (item == b' ') {
+            return &s[0..i];
+        }
+    }
+    &s[..]
+}
+</code></pre><p>之前的函数，在调用之后清空原来的 string，编译阶段不会出错，但是在运行时会引发 bug。现在经过改造之后的方法，在编译阶段就会指出问题所在。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let mut s = String::from("hello world");
+
+    let word = first_word(&s);
+
+    s.clear(); // error!
+
+    println!("the first word is: {}", word);
+}
+
+// error[E0502]: cannot borrow `s` as mutable because it is also borrowed as immutable
+</code></pre><p>回顾之前的规则，当存在 immutable 的引用时，不能同时存在 mutable 的引用。<code>clear</code>方法需要清空原字符串，所以它需要一个 mutable 的引用，Rust 是不允许的并在编译阶段直接抛错。Rust 编译器不光让自定义 API 更加易用，并且在编译阶段排除了许多潜在 bug。<h4 id=zi-fu-chuan-zi-mian-liang-shi-qie-pian-lei-xing>字符串字面量是切片类型</h4><p>之前提到，字符串字面量直接存储在可执行文件中。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s = "hello";
+</code></pre><p>这里变量<code>s</code>的类型是<code>&str</code>，它是一个切片，指一个向可执行文件中字面量存储位置的指针。这就是为什么字符串字面量不可以修改了，因为<code>&str</code>是一个 immutable 引用。<h4 id=zi-fu-chuan-qie-pian-zuo-wei-han-shu-can-shu>字符串切片作为函数参数</h4><p>之前的<code>first_word</code>函数，有一个更好的定义方式是<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn first_word(s: &str) -> &str
+</code></pre><p>此时我们可以传<code>&String</code>类型或者<code>&str</code>类型。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let my_string = String::from("hello world");
+
+    // first_word works on slices of `String`s
+    let word = first_word(&my_string[..]);
+
+    let my_string_literal = "hello world";
+
+    // first_word works on slices of string literals
+    let word = first_word(&my_string_literal[..]);
+
+    // Because string literals *are* string slices already,
+    // this works too, without the slice syntax!
+    let word = first_word(&my_string);
+}
+</code></pre><h3 id=qi-ta-qie-pian-lei-xing>其他切片类型</h3><p>数组切片<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let arr = [1,2,3,4,5];
+let arr_slice = &[0..2];
+</code></pre><p><code>arr_slice</code>是<code>&[i32]</code>类型的，它跟<code>&str</code>的表现没有任何区别：存储一个头指针和内容长度。</div><div class=post-tags><a class=tag href=/tags/rust>#Rust </a></div></article></main><footer><hr><div id=footer-container><p>Made using <a rel="noopener noreferrer" href=https://github.com/Speyll/anemone target=_blank>anemone</a> Zola theme</div></footer><script defer src=https://leokang28.github.io/js/script.js></script>
