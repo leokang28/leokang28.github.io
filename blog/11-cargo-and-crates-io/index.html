@@ -16,13 +16,13 @@ opt-level = 3
 pub fn add_one(x: i32) -> i32 {
     x + 1
 }
-</code></pre><p>我们描述了<code>add_one</code>函数的功能是什么，然后<code>Examples</code>下面是一个示例代码块。<code>cargo doc</code>命令可以基于这些描述生成 html 文档。这个命令运行了 Rust 提供的<code>rustdoc</code>工具，并且将生成的 html 文件放置于<em>target/doc</em>目录下。<p>使用<code>--open</code>参数会在文档创建完成之后打开浏览器，效果如下： <img alt="rust doc" src=https://gitee.com/ksleo/source/raw/master/QQ20200901-165110@2x.png><h4 id=chang-yong-mo-kuai>常用模块</h4><p>我们已经使用<code># Examples</code>md 语法，创建了一个示例代码模块，下面还有一些常用的模块：<ul><li><strong>Panics</strong>：会导致代码出错的场景。<li><strong>Errors</strong>：如果函数返回的是一个<code>Result</code>，描述一下返回的错误类型，以及如何处理这些错误。<li><strong>Safety</strong>：如果这个函数调用是<code>unsafe</code>的，应当描述函数为何是<code>unsale</code>，以及涵盖希望由调用者维护的不变性（invariants）。</ul><h4 id=wen-dang-zhu-shi-ce-shi-yong-li>文档注释测试用例</h4><p><code>cargo test</code>命令会将文档注释中 examples 模块下的示例代码作为测试用例运行。这会保证你的代码和示例代码是同步的，因为当你修改其中任意部分时，如果出错文档测试会捕获到。<h4 id=mu-lu-xing-miao-shu>目录性描述</h4><p>对 crate 包含内容的一个总体描述。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>//! # My Crate
+</code></pre><p>我们描述了<code>add_one</code>函数的功能是什么，然后<code>Examples</code>下面是一个示例代码块。<code>cargo doc</code>命令可以基于这些描述生成 html 文档。这个命令运行了 Rust 提供的<code>rustdoc</code>工具，并且将生成的 html 文件放置于<em>target/doc</em>目录下。<p>使用<code>--open</code>参数会在文档创建完成之后打开浏览器，效果如下： <img alt="rust doc" src=/images/cargo/QQ20200901-165110@2x.png><h4 id=chang-yong-mo-kuai>常用模块</h4><p>我们已经使用<code># Examples</code>md 语法，创建了一个示例代码模块，下面还有一些常用的模块：<ul><li><strong>Panics</strong>：会导致代码出错的场景。<li><strong>Errors</strong>：如果函数返回的是一个<code>Result</code>，描述一下返回的错误类型，以及如何处理这些错误。<li><strong>Safety</strong>：如果这个函数调用是<code>unsafe</code>的，应当描述函数为何是<code>unsale</code>，以及涵盖希望由调用者维护的不变性（invariants）。</ul><h4 id=wen-dang-zhu-shi-ce-shi-yong-li>文档注释测试用例</h4><p><code>cargo test</code>命令会将文档注释中 examples 模块下的示例代码作为测试用例运行。这会保证你的代码和示例代码是同步的，因为当你修改其中任意部分时，如果出错文档测试会捕获到。<h4 id=mu-lu-xing-miao-shu>目录性描述</h4><p>对 crate 包含内容的一个总体描述。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>//! # My Crate
 //!
 //! `my_crate` is a collection of utilities to make performing certain
 //! calculations more convenient.
 
 /// Adds one to the number given.
-</code></pre><p><img alt="rust doc" src=https://gitee.com/ksleo/source/raw/master/QQ20200901-171515@2x.png><h3 id=shi-yong-pub-usedao-chu-gong-you-api>使用<code>pub use</code>导出公有 API</h3><p>在写代码时，你的代码结构可能自己比较清楚，但对于使用者来说可能不是特别方便。在组织代码时，可能进行了很深的模块嵌套，但是当使用者想要使用一个定义的很深的 API 时，找到它就比较费劲了。例如：<code>use my_crate::some_module::another_module::UsefulType;</code>。显然<code>use my_crate::UsefulType</code>对调用者更加的友好。<p>因此当发布包时，API 的结构是首先要考虑的问题。因为使用者不会像你一样熟悉你的代码结构。<p>当一个 API 对调用者不太友好时，你不需要修改你的代码组织，你可以使用<code>pub use</code>二次导出。<code>pub use</code>导入一个共有 API，并且将其再对外公开暴露。<p>创建一个<code>art</code>包，它的内容如下所示：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>//! # Art
+</code></pre><p><img alt="rust doc" src=/images/cargo/QQ20200901-171515@2x.png><h3 id=shi-yong-pub-usedao-chu-gong-you-api>使用<code>pub use</code>导出公有 API</h3><p>在写代码时，你的代码结构可能自己比较清楚，但对于使用者来说可能不是特别方便。在组织代码时，可能进行了很深的模块嵌套，但是当使用者想要使用一个定义的很深的 API 时，找到它就比较费劲了。例如：<code>use my_crate::some_module::another_module::UsefulType;</code>。显然<code>use my_crate::UsefulType</code>对调用者更加的友好。<p>因此当发布包时，API 的结构是首先要考虑的问题。因为使用者不会像你一样熟悉你的代码结构。<p>当一个 API 对调用者不太友好时，你不需要修改你的代码组织，你可以使用<code>pub use</code>二次导出。<code>pub use</code>导入一个共有 API，并且将其再对外公开暴露。<p>创建一个<code>art</code>包，它的内容如下所示：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>//! # Art
 //!
 //! A library for modeling artistic concepts.
 
@@ -51,7 +51,7 @@ pub mod utils {
         // --snip--
     }
 }
-</code></pre><p>查看它的文档： <img alt="rust doc" src=https://gitee.com/ksleo/source/raw/master/QQ20200901-173414@2x.png><p><code>PrimaryColor</code>、<code>SecondaryColor</code>和<code>mix</code>都没有在首页展示出来，需要我们手动点入这些模块。并且其他模块调用我们的包时，引用的链路特别长：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use art::kinds::PrimaryColor;
+</code></pre><p>查看它的文档： <img alt="rust doc" src=/images/cargo/QQ20200901-173414@2x.png><p><code>PrimaryColor</code>、<code>SecondaryColor</code>和<code>mix</code>都没有在首页展示出来，需要我们手动点入这些模块。并且其他模块调用我们的包时，引用的链路特别长：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use art::kinds::PrimaryColor;
 use art::utils::mix;
 
 fn main() {
@@ -62,7 +62,7 @@ fn main() {
 </code></pre><p>为了移除这个调用者冗长的调用链路，我们可以在自己的包中，将这些 API 进行二次导出：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub use self::kinds::PrimaryColor;
 pub use self::kinds::SecondaryColor;
 pub use self::utils::mix;
-</code></pre><p><code>PrimaryColor</code>、<code>SecondaryColor</code>和<code>mix</code>都更容易找到了，文档如下： <img alt="rust doc" src=https://gitee.com/ksleo/source/raw/master/QQ20200901-174144@2x.png><p>并且调用者在引用代码，代码量也更少：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use art::PrimaryColor;
+</code></pre><p><code>PrimaryColor</code>、<code>SecondaryColor</code>和<code>mix</code>都更容易找到了，文档如下： <img alt="rust doc" src=/images/cargo/QQ20200901-174144@2x.png><p>并且调用者在引用代码，代码量也更少：<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use art::PrimaryColor;
 use art::mix;
 </code></pre><h3 id=chuang-jian-crates-io-zhang-hao>创建 Crates.io 账号</h3><p>首先去<a href=https://crates.io/ rel=noopener target=_blank>crates.io</a>注册一个账号，验证邮箱之后，获取 API token。然后在终端使用 token 登陆。<pre><code>cargo login abcdefghijklmnopqrstuvwxyz012345
 </code></pre><p>token 会被存储在*~/.cargo/credentials.*文件下。注意不要将 token 分享出去。<h3 id=wei-xin-bao-tian-jia-yuan-shu-ju>为新包添加元数据</h3><p>发布之前需要在<em>Cargo.toml</em>文件的[package]模块下追加一些元数据。<p>注意你的包名必须是唯一的。当你在本地开发时，跟目录名称可以随意，但是在发布时，元数据当中的包名称必须是唯一的，不能跟别人的包名称冲突。因此在发布之前可以去网站上先搜索一下你的名字有没有被使用。<p><em>Cargo.toml</em>文件下的[package]模块中定义包名称：<pre class=language-toml data-lang=toml><code class=language-toml data-lang=toml>[package]

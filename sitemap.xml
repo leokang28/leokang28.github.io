@@ -66,19 +66,12 @@
     
         
         
-            <url>
-                <loc>https://leokang28.github.io/blog/12-smart-pointer/</loc>
-                <lastmod>2021-06-25</lastmod>
-            </url>
+    
+        
         
             <url>
                 <loc>https://leokang28.github.io/blog/05-packages-and-modules/</loc>
                 <lastmod>2021-01-15</lastmod>
-            </url>
-        
-            <url>
-                <loc>https://leokang28.github.io/blog/10-iterators-and-closures/</loc>
-                <lastmod>2020-12-28</lastmod>
             </url>
         
             <url>
@@ -87,13 +80,8 @@
             </url>
         
             <url>
-                <loc>https://leokang28.github.io/blog/11-cargo-and-crates-io/</loc>
-                <lastmod>2020-12-15</lastmod>
-            </url>
-        
-            <url>
-                <loc>https://leokang28.github.io/blog/04-enums-and-pattern-matching/</loc>
-                <lastmod>2022-01-20</lastmod>
+                <loc>https://leokang28.github.io/blog/12-smart-pointer/</loc>
+                <lastmod>2021-06-25</lastmod>
             </url>
         
             <url>
@@ -102,18 +90,18 @@
             </url>
         
             <url>
-                <loc>https://leokang28.github.io/blog/09-write-tests/</loc>
-                <lastmod>2021-08-16</lastmod>
-            </url>
-        
-            <url>
-                <loc>https://leokang28.github.io/blog/07-error-handling/</loc>
-                <lastmod>2021-02-20</lastmod>
-            </url>
-        
-            <url>
                 <loc>https://leokang28.github.io/blog/08-generic-types-traits-and-lifetimes/</loc>
                 <lastmod>2021-10-05</lastmod>
+            </url>
+        
+            <url>
+                <loc>https://leokang28.github.io/blog/11-cargo-and-crates-io/</loc>
+                <lastmod>2020-12-15</lastmod>
+            </url>
+        
+            <url>
+                <loc>https://leokang28.github.io/blog/09-write-tests/</loc>
+                <lastmod>2021-08-16</lastmod>
             </url>
         
             <url>
@@ -122,12 +110,24 @@
             </url>
         
             <url>
+                <loc>https://leokang28.github.io/blog/07-error-handling/</loc>
+                <lastmod>2021-02-20</lastmod>
+            </url>
+        
+            <url>
+                <loc>https://leokang28.github.io/blog/10-iterators-and-closures/</loc>
+                <lastmod>2020-12-28</lastmod>
+            </url>
+        
+            <url>
                 <loc>https://leokang28.github.io/blog/02-ownership/</loc>
                 <lastmod>2021-05-08</lastmod>
             </url>
         
-    
-        
+            <url>
+                <loc>https://leokang28.github.io/blog/04-enums-and-pattern-matching/</loc>
+                <lastmod>2022-01-20</lastmod>
+            </url>
         
     
 </urlset>

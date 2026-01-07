@@ -15,13 +15,13 @@
 let y = x;
 </code></pre><p>这个例子很好理解，将 5 绑定到变量<code>x</code>上，创建一份变量<code>x</code>的值的拷贝并绑定在变量<code>y</code>上。整型数字是数据已知、大小确定的，在 stack 上会存储两份数据。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s1 = String::from("hello");
 let s2 = s1;
-</code></pre><p>这个例子在写法上和上面的例子看起来一致，但是在行为上有很大的差别。下图说明了<code>String</code>类型底层所做的逻辑。<code>String</code>类型由左侧三部分组成：一个指向 heap 的内存地址，表示长度的值，表示容量的值，这组数据存储在 stack 上。右侧是 heap 上存储数据的内存。</p><img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-01.svg style=display:block width=350> length是指数据具体使用的内存字节长度，capacity是`String`类型从内存调度器申请到的内存字节长度。 <p>当把<code>s1</code>赋值给<code>s2</code>时，<code>String</code>数据被复制了，也就是指针、长度和容量这个数据结构被复制了，而具体存储在 heap 上的数据并没有被复制。 <img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-02.svg style=display:block width=350><p>如果<code>s2 = s1</code>这段代码执行 heap 复制，如果在 heap 上的数据量过大，这将会是一个很昂贵的操作，性能带来损耗并且双倍的内存占用。 <img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-03.svg style=display:block width=350><p>之前提到变量所在作用域执行结束时，Rust 会自动调用<code>drop</code>方法释放该段内存。但是在上面的例子中会出现问题：作用域结束时，<code>s1</code>和<code>s2</code>都执行释放操作，但是这两个指针指向的是同一个地址，这就会引起<em>多次释放同一内存</em>的问题。为了确保内存安全，Rust 在这种情况下有其他一些细节：Rust 不会去复制 heap 内存，而是认为<code>s1</code>已经是一个无效引用，在作用域执行结束时，Rust 不会执行任何与<code>s1</code>相关的释放操作。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s1 = String::from("hello");
+</code></pre><p>这个例子在写法上和上面的例子看起来一致，但是在行为上有很大的差别。下图说明了<code>String</code>类型底层所做的逻辑。<code>String</code>类型由左侧三部分组成：一个指向 heap 的内存地址，表示长度的值，表示容量的值，这组数据存储在 stack 上。右侧是 heap 上存储数据的内存。<p><img alt=img4-1 src=/images/ownership/trpl04-01.svg> length 是指数据具体使用的内存字节长度，capacity 是<code>String</code>类型从内存调度器申请到的内存字节长度。<p>当把<code>s1</code>赋值给<code>s2</code>时，<code>String</code>数据被复制了，也就是指针、长度和容量这个数据结构被复制了，而具体存储在 heap 上的数据并没有被复制。 <img alt=img4-2 src=/images/ownership/trpl04-02.svg><p>如果<code>s2 = s1</code>这段代码执行 heap 复制，如果在 heap 上的数据量过大，这将会是一个很昂贵的操作，性能带来损耗并且双倍的内存占用。 <img alt=img4-3 src=/images/ownership/trpl04-03.svg><p>之前提到变量所在作用域执行结束时，Rust 会自动调用<code>drop</code>方法释放该段内存。但是在上面的例子中会出现问题：作用域结束时，<code>s1</code>和<code>s2</code>都执行释放操作，但是这两个指针指向的是同一个地址，这就会引起<em>多次释放同一内存</em>的问题。为了确保内存安全，Rust 在这种情况下有其他一些细节：Rust 不会去复制 heap 内存，而是认为<code>s1</code>已经是一个无效引用，在作用域执行结束时，Rust 不会执行任何与<code>s1</code>相关的释放操作。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s1 = String::from("hello");
 let s2 = s1;
 
 println!("{}", s1);
 
 // error[E0382]: borrow of moved value: `s1`
-</code></pre><p>执行以上代码，编译器会抛出错误。<p>如果你熟悉深复制和浅复制的概念，之前<code>String</code>类型下复制指针、长度和容量数据结构的操作，就可以认为是浅复制。但是由于 Rust 同时又让第一个值<code>s1</code>失效了，因此在 Rust 中称为<em>move</em>而不是<em>shallow copy</em>。在刚才的例子中，可以认为<code>s1</code><em>move</em>到了<code>s2</code>。 <img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-04.svg style=display:block width=350><h4 id=ways-variables-and-data-interact-clone>Ways Variables and Data Interact: Clone</h4><p>如果我们执行 heap 数据深复制，而不仅仅是 stack 浅复制，可以调用<code>clone</code>方法。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s1 = String::from("hello");
+</code></pre><p>执行以上代码，编译器会抛出错误。<p>如果你熟悉深复制和浅复制的概念，之前<code>String</code>类型下复制指针、长度和容量数据结构的操作，就可以认为是浅复制。但是由于 Rust 同时又让第一个值<code>s1</code>失效了，因此在 Rust 中称为<em>move</em>而不是<em>shallow copy</em>。在刚才的例子中，可以认为<code>s1</code><em>move</em>到了<code>s2</code>。 <img alt=img4-4 src=/images/ownership/trpl04-04.svg><h4 id=ways-variables-and-data-interact-clone>Ways Variables and Data Interact: Clone</h4><p>如果我们执行 heap 数据深复制，而不仅仅是 stack 浅复制，可以调用<code>clone</code>方法。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s1 = String::from("hello");
 let s2 = s1.clone();
 
 println!("s1 = {}, s2 = {}", s1, s2);
@@ -106,7 +106,7 @@ fn calculate_length(s: &String) -> usize { // s is a reference to a String
     s.len()
 } // Here, s goes out of scope. But because it does not have ownership of what
   // it refers to, nothing happens.
-</code></pre><p>首先 Tuple 被删除了，其次参数的定义和传递都加了一个<code>&</code>符号，这个符号代表的就是<em>references</em>，引用可以只读变量的值而不转移其所有权。 <img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-05.svg style=display:block width=500> :::tip Note 与<em>reference</em>相对的操作称为<em>dereference</em>，运算符是<code>*</code>。 :::<p><code>&s1</code>这种语法创建了一个引用，指向被引用的值，但是不转移原变量的所有权。因为没有所有权，所以函数结束时，它指向的 heap 区域不会被释放。当函数参数以引用方式传递时，函数不再需要显式的返回所有权，因为所有权一开始就没有发生转移。<p>引用作为函数参数称之为<em>borrowing</em>。如果我们尝试改变引用，编译器会报错。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+</code></pre><p>首先 Tuple 被删除了，其次参数的定义和传递都加了一个<code>&</code>符号，这个符号代表的就是<em>references</em>，引用可以只读变量的值而不转移其所有权。 <img alt=img4-5 src=/images/ownership/trpl04-05.svg> :::tip Note 与<em>reference</em>相对的操作称为<em>dereference</em>，运算符是<code>*</code>。 :::<p><code>&s1</code>这种语法创建了一个引用，指向被引用的值，但是不转移原变量的所有权。因为没有所有权，所以函数结束时，它指向的 heap 区域不会被释放。当函数参数以引用方式传递时，函数不再需要显式的返回所有权，因为所有权一开始就没有发生转移。<p>引用作为函数参数称之为<em>borrowing</em>。如果我们尝试改变引用，编译器会报错。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
     let s = String::from("hello");
 
     change(&s);
@@ -180,7 +180,7 @@ fn dangle() -> &String {
 
 let hello = &s[0..5];
 let world = &s[6..11];
-</code></pre><p>切片和引用是类似的，不过是用<code>[start_index..end_index]</code>这种方式截断了字符串的一部分，该区间是左闭右开的。切片内部实现存储的是首地址和切片长度。 <img height=auto src=https://gitee.com/ksleo/source/raw/master/trpl04-06.svg style=display:block width=500><p>Rust 的<code>..</code>范围语法，如果定义的范围从 0 开始，那么 0 可以不写。所以，下面两种写法是一样的。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s = String::from("hello");
+</code></pre><p>切片和引用是类似的，不过是用<code>[start_index..end_index]</code>这种方式截断了字符串的一部分，该区间是左闭右开的。切片内部实现存储的是首地址和切片长度。 <img alt=img4-6 src=/images/ownership/trpl04-06.svg><p>Rust 的<code>..</code>范围语法，如果定义的范围从 0 开始，那么 0 可以不写。所以，下面两种写法是一样的。<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let s = String::from("hello");
 
 let slice = &s[0..2];
 let slice = &s[..2];
