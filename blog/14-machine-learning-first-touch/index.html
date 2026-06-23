@@ -1,0 +1,45 @@
+<!doctype html><html lang=en><head><meta charset=UTF-8><meta content="width=device-width,initial-scale=1.0" name=viewport><meta content="index, follow" name=robots><link href="https://leokang28.github.io/ rss.xml" rel=alternate title=RSS type=application/rss+xml><title>KSLEO | 机器学习初探</title><link as=style href=https://leokang28.github.io/css/style.css rel=preload><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/reset-min.css rel=stylesheet><link crossorigin href=https://raw.githack.com/Speyll/suCSS/main/suCSS-min.css rel=stylesheet><link href=https://leokang28.github.io/css/style.css rel=stylesheet><link href=https://leokang28.github.io/css/custom.css rel=stylesheet><link href=https://leokang28.github.io/favicon.ico rel=icon type=image/x-icon><body><nav id=nav-bar><a class=site-title href=/>KSLEO</a><a href=/archive> /archive </a><a href=/tags> /tags </a><a href=/about> /about </a><div aria-label="Toggle theme" class=theme-toggle data-icon-base=https://leokang28.github.io/icons.svg data-icon-dark=#darkMode data-icon-light=#lightMode data-sound-src=https://leokang28.github.io/click.ogg id=theme-toggle role=button tabindex=0><svg class=icon><use id=theme-icon></use></svg></div></nav><main><article class=post><header class=post-header><time datetime=2026-06-23T23:30:00+08:00>Published on: <span class=accent-data>2026-06-23</span> </time><address rel=author>By <span class=accent-data>ksleo</span></address><h1>机器学习初探</h1></header><div class=toc-container><h2>Table of content</h2><ul><li><a href=https://leokang28.github.io/blog/14-machine-learning-first-touch/#ji-qi-xue-xi-chu-tan>机器学习初探</a> <ul><li><a href=https://leokang28.github.io/blog/14-machine-learning-first-touch/#cong-yi-ge-jian-dan-de-wen-ti-kai-shi>从一个简单的问题开始</a><li><a href=https://leokang28.github.io/blog/14-machine-learning-first-touch/#mo-xing-yu-can-shu>模型与参数</a><li><a href=https://leokang28.github.io/blog/14-machine-learning-first-touch/#cheng-ben-han-shu-heng-liang-yu-ce-de-hao-pi>成本函数：衡量预测的好坏</a><li><a href=https://leokang28.github.io/blog/14-machine-learning-first-touch/#ti-du-xia-jiang-ru-he-zhao-dao-zui-you-can-shu>梯度下降：如何找到最优参数</a><li><a href=https://leokang28.github.io/blog/14-machine-learning-first-touch/#yi-duan-wan-zheng-de-c-dai-ma>一段完整的 C 代码</a><li><a href=https://leokang28.github.io/blog/14-machine-learning-first-touch/#zong-jie>总结</a></ul></ul></div><div class=post-content><h1 id=ji-qi-xue-xi-chu-tan>机器学习初探</h1><h2 id=cong-yi-ge-jian-dan-de-wen-ti-kai-shi>从一个简单的问题开始</h2><p>假设我们观察到这样一组数据：<table><thead><tr><th>x<th>y<tbody><tr><td>0<td>0<tr><td>1<td>2<tr><td>2<td>4<tr><td>3<td>6<tr><td>4<td>8</table><p>不难看出，x 和 y 的关系大概是 <code>y = 2x</code>。但如果是更复杂的数据，这个规律就不那么容易肉眼发现了。机器学习的本质，就是让程序自己从数据中找到这样的规律。<h2 id=mo-xing-yu-can-shu>模型与参数</h2><p>我们从一个最简单的模型开始：<pre class=language-c data-lang=c><code class=language-c data-lang=c>y = w * x + b
+</code></pre><p>其中：<ul><li><code>w</code> 是斜率，控制 x 对 y 的影响程度。<li><code>b</code> 是偏置，让直线可以上下平移。</ul><p>一开始我们不知道 <code>w</code> 和 <code>b</code> 该取多少，可以随机给它们一个初始值，然后让程序自己不断调整。<h2 id=cheng-ben-han-shu-heng-liang-yu-ce-de-hao-pi>成本函数：衡量预测的好坏</h2><p>怎么知道当前的 <code>w</code> 和 <code>b</code> 好不好？办法是拿预测值和真实值做比较。<p>对每个样本，误差可以这样计算：<pre class=language-c data-lang=c><code class=language-c data-lang=c>d = (w * x + b) - y_true
+</code></pre><p>把所有样本的误差平方后取平均，就得到了<strong>成本函数</strong>：<pre class=language-c data-lang=c><code class=language-c data-lang=c>cost(w, b) = (1 / n) * Σ(w * x_i + b - y_i)²
+</code></pre><p>这个值越小，说明模型预测得越准。训练的目标，就是找到让 cost 最小的 <code>w</code> 和 <code>b</code>。<blockquote><p><strong>Tip：为什么叫成本函数？</strong> 可以把 cost 理解为“预测错误要付出的代价”。cost 为 0 表示完美预测，cost 越大表示错得越离谱。训练模型的过程，就是不断降低这个成本。</blockquote><h2 id=ti-du-xia-jiang-ru-he-zhao-dao-zui-you-can-shu>梯度下降：如何找到最优参数</h2><p>现在问题变成了：怎么调整 <code>w</code> 和 <code>b</code>，才能让 cost 不断下降？<p>我们需要知道 cost 对每个参数的变化率，也就是<strong>梯度</strong>。梯度指向 cost 增长最快的方向，所以我们沿着它的反方向走一小步。<p>更新公式是：<pre class=language-c data-lang=c><code class=language-c data-lang=c>w = w - rate * ∂cost/∂w
+b = b - rate * ∂cost/∂b
+</code></pre><p>这里的 <code>rate</code> 就是<strong>学习率</strong>，控制每一步迈多大。<blockquote><p><strong>Tip：为什么叫梯度？</strong> 梯度的英文是 gradient，本意是“坡度”。在这个一维例子里，梯度就是斜率；参数更多时，梯度是一个向量，指向函数增长最快的方向。梯度下降，就是沿着最陡的下坡方向一步步往下走。</blockquote><blockquote><p><strong>Tip：为什么需要学习率？</strong> 梯度只告诉你方向，没说可以走多远。步子太大可能直接跨过谷底，跑到对面更高的山坡上去，导致 cost 越来越大。学习率就是把步长限制在合理范围。</blockquote><h2 id=yi-duan-wan-zheng-de-c-dai-ma>一段完整的 C 代码</h2><pre class=language-c data-lang=c><code class=language-c data-lang=c>#include &LTstdio.h>
+#include &LTstdlib.h>
+
+float train_set[][2] = {
+    {0, 0},
+    {1, 2},
+    {2, 4},
+    {3, 6},
+    {4, 8}
+};
+
+float cost_function(float w, float b) {
+    float result = 0.0;
+    for (size_t i = 0; i < 5; i++) {
+        float x = train_set[i][0];
+        float y = train_set[i][1];
+        float d = (w * x + b) - y;
+        result += d * d;
+    }
+    return result / 5;
+}
+
+int main() {
+    float w = 0.5;
+    float b = 0.5;
+    float rate = 1e-2;
+    float eps = 1e-3;
+
+    for (size_t i = 0; i < 1000; i++) {
+        float dw = (cost_function(w + eps, b) - cost_function(w, b)) / eps;
+        float db = (cost_function(w, b + eps) - cost_function(w, b)) / eps;
+
+        w -= rate * dw;
+        b -= rate * db;
+    }
+
+    printf("w = %f, b = %f\n", w, b);
+    return 0;
+}
+</code></pre><p>运行后，程序会输出接近 <code>w = 2, b = 0</code> 的结果。<blockquote><p><strong>Tip：为什么要加偏置 b？</strong> 没有 b 时，模型 <code>y = w * x</code> 的直线必须过原点。但现实中很多数据并不过原点。加入 b 后，直线可以上下平移，模型能拟合更多情况。即使数据恰好过原点，b 也会学到接近 0 的值。</blockquote><blockquote><p><strong>Tip：数值微分与解析梯度</strong> 上面的代码用 <code>(cost(w + eps) - cost(w)) / eps</code> 近似求导，这叫数值微分。它简单直观，但有微小误差。更精确的做法是直接推导出导数公式，称为解析梯度。对于复杂模型，解析梯度效率更高、更精确。</blockquote><h2 id=zong-jie>总结</h2><p>这个小程序展示了机器学习的几个核心思想：<ul><li><strong>模型</strong>：用 <code>y = w * x + b</code> 描述数据规律。<li><strong>成本函数</strong>：量化预测误差。<li><strong>梯度下降</strong>：沿着误差减小的方向调整参数。<li><strong>学习率</strong>：控制每次调整的幅度。<li><strong>偏置</strong>：增加模型的灵活性。</ul><p>真实世界中的神经网络、深度学习，本质上也是这些思想的延伸：更复杂的模型、更多的参数、更高效的优化方法，但核心逻辑依然是从数据中不断学习，让成本越来越小。</div><footer class=post-tags><a class=tag href=/tags/machine-learning>#Machine Learning</a><a class=tag href=/tags/ai>#AI</a><a class=tag href=/tags/notes>#Notes</a></footer></article></main><footer><hr><div id=footer-container><p>Made using <a rel="noopener noreferrer" href=https://github.com/Speyll/anemone target=_blank>anemone</a> Zola theme</div></footer><script defer src=https://leokang28.github.io/js/script.js></script>
